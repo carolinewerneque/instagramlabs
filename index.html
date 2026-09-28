@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#223A5E">
+<title>Métricas IG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lekton:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<!--
+SQL (Supabase > SQL Editor): veja as instruções de login. Tabela profiles com user_id e política "somente_dono" (auth.uid() = user_id).
+-->
+<style>
+:root{--c1:#223A5E;--c2:#355982;--c3:#4D79A8;--c4:#6E9ECC;--c5:#9FC0E3;--c6:#D0E1F2;--c7:#F3F8FD;
+--bg:linear-gradient(180deg,#F3F8FD,#D0E1F2);--card:#fff;--txt:#223A5E;--mut:#4D79A8;--line:#D0E1F2;--shadow:0 10px 24px rgba(34,58,94,.14)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:linear-gradient(180deg,#223A5E,#14243c);--card:#2a4670;--txt:#F3F8FD;--mut:#9FC0E3;--line:#355982;--shadow:0 10px 24px rgba(0,0,0,.3)}}
+:root[data-theme=dark]{--bg:linear-gradient(180deg,#223A5E,#14243c);--card:#2a4670;--txt:#F3F8FD;--mut:#9FC0E3;--line:#355982;--shadow:0 10px 24px rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);background-attachment:fixed;color:var(--txt);font:400 15px/1.55 Lekton,ui-monospace,monospace}
+h1,h2,h3{font-family:Poppins,system-ui,sans-serif;margin:0;line-height:1.2}
+h1{font-size:22px;font-weight:700}h2{font-size:18px;font-weight:600;margin-bottom:12px}h3{font-size:15px;font-weight:600}
+main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel{background:var(--card);border-radius:28px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+label{display:block;font-weight:700;margin-bottom:6px;font-size:13px;color:var(--mut)}
+input,select{width:100%;font:inherit;color:var(--txt);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:44px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--c4);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1 1 150px}
+button{font:600 14px Poppins,system-ui,sans-serif;border:0;border-radius:999px;padding:11px 20px;min-height:44px;cursor:pointer;background:var(--c2);color:#fff}
+button.ghost{background:transparent;color:var(--txt);border:1.5px solid var(--line)}
+button.big{background:var(--c1);width:100%;margin-top:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.chip{background:transparent;color:var(--txt);border:1.5px solid var(--line);padding:8px 16px;min-height:40px}
+.chip[aria-pressed=true]{background:var(--c3);border-color:var(--c3);color:#fff}
+.dates{display:none;margin-top:12px}.dates.on{display:flex}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{border-radius:999px;padding:14px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;min-height:82px}
+.kpi b{font:700 22px Poppins,sans-serif;line-height:1.1}.kpi span{font-size:13px;opacity:.9}
+.k1{background:var(--c1);color:#fff}.k2{background:var(--c2);color:#fff}.k3{background:var(--c3);color:#fff}.k4{background:#3f6c99;color:#fff}
+.k5{background:var(--c5);color:#223A5E}.k6{background:var(--c6);color:#223A5E}.k7{background:var(--c7);color:#223A5E;border:1.5px solid var(--c6)}
+.chart{position:relative;height:260px}
+.vs{display:grid;gap:10px;grid-template-columns:1fr}@media(min-width:640px){.vs{grid-template-columns:1fr 1fr}}
+.tips{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.tips li{background:var(--c7);color:#223A5E;border-radius:22px;padding:12px 18px;border-left:6px solid var(--c3)}
+.muted{color:var(--mut)}.msg{padding:12px 18px;border-radius:22px;background:var(--c6);color:#223A5E;margin-bottom:14px}
+.err{background:#f7d9d9}
+.plist{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{background:var(--c6);color:#223A5E;border-radius:999px;padding:4px 6px 4px 14px;display:flex;align-items:center;gap:6px}
+.tag button{padding:2px 10px;min-height:28px;background:var(--c3);font-size:12px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Métricas do Instagram</h1>
+  <div style="display:flex;gap:8px"><button class="ghost" id="theme" aria-label="Alternar tema">Tema</button><button class="ghost hide" id="logout">Sair</button></div>
+</header>
+<div id="msg"></div>
+
+<section class="panel hide" id="login" aria-labelledby="t-login">
+  <h2 id="t-login">Entrar</h2>
+  <div class="row">
+    <div><label for="l-mail">E-mail</label><input id="l-mail" type="email" autocomplete="username"></div>
+    <div><label for="l-pass">Senha</label><input id="l-pass" type="password" autocomplete="current-password"></div>
+  </div>
+  <button class="big" id="l-go">Entrar</button>
+</section>
+
+<div id="app" class="hide">
+<section class="panel" aria-labelledby="t-perfil">
+  <h2 id="t-perfil">Perfil</h2>
+  <div class="row">
+    <div><label for="sel">Perfil para análise</label><select id="sel"></select></div>
+    <div style="flex:0 0 auto"><button class="ghost" id="add">Adicionar perfil</button></div>
+  </div>
+  <div id="form" class="hide" style="margin-top:14px">
+    <div class="row">
+      <div><label for="f-user">Nome de usuário</label><input id="f-user" placeholder="ex.: dra.exemplo" autocapitalize="none"></div>
+      <div><label for="f-id">ID da conta (Graph API)</label><input id="f-id" inputmode="numeric"></div>
+      <div><label for="f-tok">Token de acesso</label><input id="f-tok" type="password" autocomplete="off"></div>
+    </div>
+    <button class="big" id="save">Salvar perfil</button>
+  </div>
+  <div class="plist" id="plist"></div>
+</section>
+
+<section class="panel" aria-labelledby="t-per">
+  <h2 id="t-per">Período</h2>
+  <div class="chips" role="group" aria-label="Período">
+    <button class="chip" data-d="7" aria-pressed="true">Última semana</button>
+    <button class="chip" data-d="15" aria-pressed="false">Últimos 15 dias</button>
+    <button class="chip" data-d="30" aria-pressed="false">Último mês</button>
+    <button class="chip" data-d="0" aria-pressed="false">Personalizado</button>
+  </div>
+  <div class="row dates" id="dates">
+    <div><label for="d1">De</label><input type="date" id="d1"></div>
+    <div><label for="d2">Até</label><input type="date" id="d2"></div>
+  </div>
+  <button class="big" id="go">Analisar métricas</button>
+</section>
+
+<div id="out" class="hide">
+  <div class="kpis" id="kpis"></div>
+  <section class="panel"><h2>Alcance e engajamento por publicação</h2><div class="chart"><canvas id="c1"></canvas></div></section>
+
+  <section class="panel">
+    <h2>Reel x carrossel do mesmo tema</h2>
+    <p class="muted" style="margin-top:0">Escolha um Reel e um carrossel sobre o mesmo assunto, publicados no período.</p>
+    <div class="vs">
+      <div><label for="s-reel">Reel</label><select id="s-reel"></select></div>
+      <div><label for="s-car">Carrossel</label><select id="s-car"></select></div>
+    </div>
+    <div id="cmp" class="hide">
+      <div class="chart" style="margin-top:16px"><canvas id="c2"></canvas></div>
+      <h3 style="margin-top:16px">O que melhorar nos próximos conteúdos</h3>
+      <ul class="tips" id="tips"></ul>
+    </div>
+  </section>
+</div>
+</div>
+</main>
+
+<script>
+/* ===== CONFIGURAÇÃO ===== */
+const CFG={SUPABASE_URL:'https://wqzedkpxriudwpwvkvvh.supabase.co',SUPABASE_KEY:'sb_publishable_zlfg3DrS8KkSzvvWzuOsdA_dy_rfaOl',GRAPH:'https://graph.facebook.com/v21.0',MAX_POSTS:40};
+
+const $=s=>document.querySelector(s), nf=n=>Math.round(n).toLocaleString('pt-BR'), pc=n=>n.toFixed(1).replace('.',',')+'%';
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let db=null,profiles=[],days=7,posts=[],followers=0,charts={};
+try{if(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY)db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
+
+function say(t,err){$('#msg').innerHTML=t?`<div class="msg ${err?'err':''}" role="status">${t}</div>`:''}
+
+/* ===== LOGIN E PERFIS (Supabase) ===== */
+function show(on){
+  $('#login').classList.toggle('hide',on);$('#app').classList.toggle('hide',!on);$('#logout').classList.toggle('hide',!on);
+  if(on)loadProfiles();else{profiles=[];posts=[];$('#out').classList.add('hide')}
+}
+async function login(){
+  const {error}=await db.auth.signInWithPassword({email:$('#l-mail').value.trim(),password:$('#l-pass').value});
+  if(error)return say('Não foi possível entrar: '+esc(error.message),1);
+  $('#l-pass').value='';say('');
+}
+async function init(){
+  if(!db){$('#login').classList.add('hide');return say('Preencha SUPABASE_URL e SUPABASE_KEY no início do script para usar o app.',1)}
+  const {data}=await db.auth.getSession();show(!!data.session);
+  db.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(()=>show(ev==='SIGNED_IN'),0)});
+}
+async function loadProfiles(){
+  const {data,error}=await db.from('profiles').select('*').order('username');
+  if(error)say('Erro ao ler perfis: '+esc(error.message),1);
+  profiles=data||[];renderProfiles();
+}
+async function saveProfile(){
+  const username=$('#f-user').value.trim().replace(/^@/,'').toLowerCase(),ig_user_id=$('#f-id').value.trim(),token=$('#f-tok').value.trim();
+  if(!username||!ig_user_id||!token)return say('Preencha usuário, ID da conta e token.',1);
+  const {error}=await db.from('profiles').upsert({username,ig_user_id,token},{onConflict:'username'});
+  if(error)return say('Erro ao salvar: '+esc(error.message),1);
+  ['#f-user','#f-id','#f-tok'].forEach(i=>$(i).value='');$('#form').classList.add('hide');say('Perfil @'+esc(username)+' salvo.');
+  await loadProfiles();$('#sel').value=username;
+}
+async function delProfile(u){
+  if(!confirm('Remover @'+u+'?'))return;
+  const {error}=await db.from('profiles').delete().eq('username',u);
+  if(error)say('Erro ao remover: '+esc(error.message),1);
+  loadProfiles();
+}
+function renderProfiles(){
+  $('#sel').innerHTML=profiles.length?profiles.map(p=>`<option value="${esc(p.username)}">@${esc(p.username)}</option>`).join(''):'<option value="">Nenhum perfil salvo</option>';
+  $('#plist').innerHTML=profiles.map(p=>`<span class="tag">@${esc(p.username)}<button data-del="${esc(p.username)}" aria-label="Remover @${esc(p.username)}">Remover</button></span>`).join('');
+}
+
+/* ===== INSTAGRAM GRAPH API ===== */
+async function api(path,params,token){
+  const r=await fetch(`${CFG.GRAPH}/${path}?`+new URLSearchParams({...params,access_token:token}));
+  const j=await r.json();if(j.error)throw new Error(j.error.message);return j;
+}
+function range(){
+  if(days>0){const u=new Date(),s=new Date();s.setDate(s.getDate()-days);return[s,u]}
+  const a=$('#d1').value,b=$('#d2').value;if(!a||!b)throw new Error('Escolha as datas inicial e final.');
+  const s=new Date(a+'T00:00:00'),u=new Date(b+'T23:59:59');if(s>u)throw new Error('A data inicial vem depois da final.');return[s,u]
+}
+async function analyze(){
+  const p=profiles.find(x=>x.username===$('#sel').value);
+  if(!p)return say('Adicione e selecione um perfil.',1);
+  $('#go').disabled=true;$('#go').textContent='Analisando…';say('');
+  try{
+    const [s,u]=range(),ts=d=>Math.floor(d/1000);
+    const acc=await api(p.ig_user_id,{fields:'followers_count'},p.token);followers=acc.followers_count||0;
+    const m=await api(p.ig_user_id+'/media',{fields:'caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count',since:ts(s),until:ts(u),limit:CFG.MAX_POSTS},p.token);
+    const list=(m.data||[]).filter(x=>{const t=new Date(x.timestamp);return t>=s&&t<=u});
+    if(!list.length){$('#out').classList.add('hide');return say('Nenhuma publicação neste período.')}
+    const ins=await Promise.allSettled(list.map(x=>api(x.id+'/insights',{metric:'reach,saved,shares'},p.token)));
+    posts=list.map((x,i)=>{
+      const v={};if(ins[i].status==='fulfilled')ins[i].value.data.forEach(d=>v[d.name]=d.values?.[0]?.value||0);
+      const o={id:x.id,date:new Date(x.timestamp),cap:(x.caption||'Sem legenda').slice(0,40),link:x.permalink,
+        type:x.media_product_type==='REELS'?'reel':x.media_type==='CAROUSEL_ALBUM'?'car':'outro',
+        likes:x.like_count||0,comments:x.comments_count||0,saved:v.saved||0,shares:v.shares||0,reach:v.reach||0};
+      o.inter=o.likes+o.comments+o.saved+o.shares;o.eng=o.reach?o.inter/o.reach*100:0;return o}).sort((a,b)=>a.date-b.date);
+    render();
+  }catch(e){say('Não foi possível analisar: '+esc(e.message),1)}
+  finally{$('#go').disabled=false;$('#go').textContent='Analisar métricas'}
+}
+
+/* ===== RENDER ===== */
+const sum=(a,k)=>a.reduce((t,x)=>t+x[k],0);
+function render(){
+  $('#out').classList.remove('hide');
+  const R=sum(posts,'reach'),I=sum(posts,'inter'),eng=R?I/R*100:0;
+  const k=[['k1',nf(followers),'Seguidores'],['k2',nf(R),'Alcance (soma)'],['k3',pc(eng),'Engajamento'],['k4',nf(sum(posts,'likes')),'Curtidas'],
+    ['k5',nf(sum(posts,'comments')),'Comentários'],['k6',nf(sum(posts,'saved')),'Salvamentos'],['k7',nf(sum(posts,'shares')),'Compartilhamentos'],['k7',posts.length,'Publicações']];
+  $('#kpis').innerHTML=k.map(x=>`<div class="kpi ${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
+  const css=getComputedStyle(document.documentElement),txt=css.getPropertyValue('--txt').trim()||'#223A5E';
+  Chart.defaults.color=txt;Chart.defaults.font.family='Lekton, monospace';
+  charts.a?.destroy();
+  charts.a=new Chart($('#c1'),{data:{labels:posts.map(p=>p.date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),datasets:[
+    {type:'bar',label:'Alcance',data:posts.map(p=>p.reach),backgroundColor:'#6E9ECC',borderRadius:12,yAxisID:'y'},
+    {type:'line',label:'Engajamento (%)',data:posts.map(p=>+p.eng.toFixed(2)),borderColor:'#223A5E',backgroundColor:'#223A5E',tension:.3,yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}},y1:{position:'right',beginAtZero:true,grid:{display:false}}}}});
+  const opt=t=>{const l=posts.filter(p=>p.type===t);return l.length?l.map(p=>`<option value="${p.id}">${p.date.toLocaleDateString('pt-BR')} — ${esc(p.cap)}</option>`).join(''):'<option value="">Nenhum no período</option>'};
+  $('#s-reel').innerHTML=opt('reel');$('#s-car').innerHTML=opt('car');compare();
+}
+
+/* ===== COMPARATIVO E SUGESTÕES ===== */
+const per1k=(p,k)=>p.reach?p[k]/p.reach*1000:0;
+function compare(){
+  const r=posts.find(p=>p.id===$('#s-reel').value),c=posts.find(p=>p.id===$('#s-car').value);
+  if(!r||!c){$('#cmp').classList.add('hide');return}
+  $('#cmp').classList.remove('hide');
+  const ks=[['likes','Curtidas'],['comments','Comentários'],['saved','Salvamentos'],['shares','Compartilhamentos']];
+  charts.b?.destroy();
+  charts.b=new Chart($('#c2'),{type:'bar',data:{labels:ks.map(x=>x[1]),datasets:[
+    {label:'Reel',data:ks.map(x=>+per1k(r,x[0]).toFixed(1)),backgroundColor:'#223A5E',borderRadius:12},
+    {label:'Carrossel',data:ks.map(x=>+per1k(c,x[0]).toFixed(1)),backgroundColor:'#9FC0E3',borderRadius:12}]},
+    options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Interações por 1.000 pessoas alcançadas'}},scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}}}}});
+  const avg=sum(posts,'reach')?sum(posts,'inter')/sum(posts,'reach')*100:0,t=[];
+  const up=(a,b)=>b?(a/b-1)*100:0;
+  if(r.reach>c.reach*1.3)t.push(`O Reel alcançou ${nf(up(r.reach,c.reach))}% mais pessoas. Use Reels para atrair público novo e o carrossel para aprofundar o tema com quem já chegou.`);
+  else if(c.reach>r.reach*1.3)t.push(`O carrossel alcançou ${nf(up(c.reach,r.reach))}% mais pessoas. No próximo Reel, reforce o gancho dos primeiros segundos e a promessa da capa.`);
+  else t.push('O alcance dos dois formatos ficou parecido. A diferença está no que as pessoas fizeram depois de ver o conteúdo.');
+  if(per1k(c,'saved')>per1k(r,'saved')*1.3)t.push('O carrossel gerou mais salvamentos. Traga o formato de passo a passo ou checklist para o Reel e feche com "salve para consultar depois".');
+  else if(per1k(r,'saved')>per1k(c,'saved')*1.3)t.push('O Reel gerou mais salvamentos. Aproveite esse tema num carrossel com mais detalhes e convide a salvar na última lâmina.');
+  if(per1k(c,'shares')>per1k(r,'shares')*1.3)t.push('O carrossel foi mais compartilhado. No Reel, inclua uma frase que a pessoa queira enviar para alguém e peça "envie para quem precisa ver isso".');
+  else if(per1k(r,'shares')>per1k(c,'shares')*1.3)t.push('O Reel foi mais compartilhado. Adicione um CTA de envio na última lâmina do carrossel.');
+  if(per1k(r,'comments')<per1k(c,'comments')*.7||per1k(c,'comments')<per1k(r,'comments')*.7)t.push('Os comentários variam bastante entre os formatos. Termine o formato mais fraco com uma pergunta direta ou uma palavra-chave para comentar.');
+  [[r,'Reel'],[c,'Carrossel']].forEach(([p,n])=>{if(avg&&p.eng<avg*.8)t.push(`O engajamento do ${n} (${pc(p.eng)}) ficou abaixo da média do período (${pc(avg)}). Revise o gancho e o CTA desse formato.`)});
+  $('#tips').innerHTML=t.map(x=>`<li>${x}</li>`).join('');
+}
+
+/* ===== EVENTOS ===== */
+$('#l-go').onclick=login;$('#l-pass').onkeydown=e=>{if(e.key==='Enter')login()};$('#logout').onclick=()=>db.auth.signOut();
+$('#add').onclick=()=>$('#form').classList.toggle('hide');
+$('#save').onclick=saveProfile;$('#go').onclick=analyze;
+$('#plist').onclick=e=>{const u=e.target.dataset.del;if(u)delProfile(u)};
+$('#s-reel').onchange=$('#s-car').onchange=compare;
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  days=+b.dataset.d;$('#dates').classList.toggle('on',days===0)});
+$('#theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--card').trim()==='#2a4670';d.dataset.theme=dark?'light':'dark';if(posts.length)render()};
+
+/* ===== PWA ===== */
+const icon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#223A5E"/><rect x="96" y="150" width="320" height="100" rx="50" fill="#6E9ECC"/><rect x="96" y="262" width="320" height="100" rx="50" fill="#F3F8FD"/></svg>');
+const man={name:'Métricas do Instagram',short_name:'Métricas IG',start_url:location.href.split('#')[0],display:'standalone',background_color:'#F3F8FD',theme_color:'#223A5E',icons:[{src:icon,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
+const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/manifest+json'}));document.head.appendChild(ml);
+const ai=document.createElement('link');ai.rel='apple-touch-icon';ai.href=icon;document.head.appendChild(ai);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+init();
+</script>
+</body>
+</html>
