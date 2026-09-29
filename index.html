@@ -4,15 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#223A5E">
-<title>Métricas IG</title>
+<title>Estratégia de conteúdo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lekton:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<!--
-SQL (Supabase > SQL Editor): veja as instruções de login. Tabela profiles com user_id e política "somente_dono" (auth.uid() = user_id).
--->
 <style>
 :root{--c1:#223A5E;--c2:#355982;--c3:#4D79A8;--c4:#6E9ECC;--c5:#9FC0E3;--c6:#D0E1F2;--c7:#F3F8FD;
 --bg:linear-gradient(180deg,#F3F8FD,#D0E1F2);--card:#fff;--txt:#223A5E;--mut:#4D79A8;--line:#D0E1F2;--shadow:0 10px 24px rgba(34,58,94,.14)}
@@ -23,43 +20,54 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;min-height:100vh;background:var(--bg);background-attachment:fixed;color:var(--txt);font:400 15px/1.55 Lekton,ui-monospace,monospace}
 h1,h2,h3{font-family:Poppins,system-ui,sans-serif;margin:0;line-height:1.2}
-h1{font-size:22px;font-weight:700}h2{font-size:18px;font-weight:600;margin-bottom:12px}h3{font-size:15px;font-weight:600}
+h1{font-size:22px;font-weight:700}h2{font-size:18px;font-weight:600;margin-bottom:12px}
 main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .panel{background:var(--card);border-radius:28px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
 label{display:block;font-weight:700;margin-bottom:6px;font-size:13px;color:var(--mut)}
-input,select{width:100%;font:inherit;color:var(--txt);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:44px}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--c4);outline-offset:2px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1 1 150px}
+input,select,textarea{width:100%;font:inherit;color:var(--txt);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:44px}
+textarea{border-radius:22px;resize:vertical}
+option{color:#223A5E}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--c4);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}.row>*{flex:1 1 150px}
 button{font:600 14px Poppins,system-ui,sans-serif;border:0;border-radius:999px;padding:11px 20px;min-height:44px;cursor:pointer;background:var(--c2);color:#fff}
 button.ghost{background:transparent;color:var(--txt);border:1.5px solid var(--line)}
-button.big{background:var(--c1);width:100%;margin-top:14px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+button.big{background:var(--c1);width:100%;margin-top:8px}
+button.sm{padding:6px 14px;min-height:36px;font-size:13px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{background:transparent;color:var(--txt);border:1.5px solid var(--line);padding:8px 16px;min-height:40px}
 .chip[aria-pressed=true]{background:var(--c3);border-color:var(--c3);color:#fff}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin:0 -16px 18px;padding:12px 16px 10px;background:var(--c1);color:var(--c7);box-shadow:var(--shadow);border-radius:0 0 24px 24px}
+.top label{color:var(--c5)}.top select{color:#F3F8FD;border-color:var(--c3)}
+#nav{flex-wrap:nowrap;overflow-x:auto;margin-top:10px;padding-bottom:4px;scrollbar-width:none}
+#nav .chip{white-space:nowrap;color:#F3F8FD;border-color:var(--c3)}
+#nav .chip[aria-pressed=true]{background:var(--c5);border-color:var(--c5);color:#223A5E}
+input[type=checkbox]{width:auto;min-height:0;accent-color:var(--c3)}
+.ck{display:flex;gap:10px;align-items:center;font-weight:400;font-size:15px;color:var(--txt);padding:6px 0}
 .dates{display:none;margin-top:12px}.dates.on{display:flex}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-@media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .kpi{border-radius:999px;padding:14px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;min-height:82px}
 .kpi b{font:700 22px Poppins,sans-serif;line-height:1.1}.kpi span{font-size:13px;opacity:.9}
-.k1{background:var(--c1);color:#fff}.k2{background:var(--c2);color:#fff}.k3{background:var(--c3);color:#fff}.k4{background:#3f6c99;color:#fff}
-.k5{background:var(--c5);color:#223A5E}.k6{background:var(--c6);color:#223A5E}.k7{background:var(--c7);color:#223A5E;border:1.5px solid var(--c6)}
+.k1{background:var(--c1);color:#fff}.k2{background:var(--c2);color:#fff}.k3{background:var(--c3);color:#fff}
+.k4{background:var(--c5);color:#223A5E}.k5{background:var(--c6);color:#223A5E}.k6{background:var(--c7);color:#223A5E;border:1.5px solid var(--c6)}
 .chart{position:relative;height:260px}
-.vs{display:grid;gap:10px;grid-template-columns:1fr}@media(min-width:640px){.vs{grid-template-columns:1fr 1fr}}
 .tips{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
 .tips li{background:var(--c7);color:#223A5E;border-radius:22px;padding:12px 18px;border-left:6px solid var(--c3)}
 .muted{color:var(--mut)}.msg{padding:12px 18px;border-radius:22px;background:var(--c6);color:#223A5E;margin-bottom:14px}
 .err{background:#f7d9d9}
-.plist{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.tag{background:var(--c6);color:#223A5E;border-radius:999px;padding:4px 6px 4px 14px;display:flex;align-items:center;gap:6px}
-.tag button{padding:2px 10px;min-height:28px;background:var(--c3);font-size:12px}
+.item{border:1.5px solid var(--line);border-radius:22px;padding:12px 16px;margin-bottom:10px;display:grid;gap:4px}
+.it-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.badge{border-radius:999px;padding:2px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+.v0{border:1.5px solid var(--line)}.v1{background:#2f7d5b;color:#fff}.v2{background:var(--c6);color:#223A5E}.v3{background:#a94a35;color:#fff}
+.acts{display:flex;gap:8px;margin-top:6px;align-items:center}.acts select{width:auto}
 .hide{display:none}
 </style>
 </head>
 <body>
 <main>
 <header>
-  <h1>Métricas do Instagram</h1>
+  <h1>Estratégia de conteúdo</h1>
   <div style="display:flex;gap:8px"><button class="ghost" id="theme" aria-label="Alternar tema">Tema</button><button class="ghost hide" id="logout">Sair</button></div>
 </header>
 <div id="msg"></div>
@@ -74,74 +82,146 @@ button.big{background:var(--c1);width:100%;margin-top:14px}
 </section>
 
 <div id="app" class="hide">
-<section class="panel" aria-labelledby="t-perfil">
-  <h2 id="t-perfil">Perfil</h2>
-  <div class="row">
-    <div><label for="sel">Perfil para análise</label><select id="sel"></select></div>
-    <div style="flex:0 0 auto"><button class="ghost" id="add">Adicionar perfil</button></div>
+<div class="top">
+  <label for="sel">Cliente</label>
+  <select id="sel"></select>
+  <div class="chips" id="nav" role="group" aria-label="Seções">
+    <button class="chip" data-v="painel" aria-pressed="true">Painel</button>
+    <button class="chip" data-v="cal" aria-pressed="false">Calendário</button>
+    <button class="chip" data-v="reg" aria-pressed="false">Registrar</button>
+    <button class="chip" data-v="headlines" aria-pressed="false">Headlines</button>
+    <button class="chip" data-v="estrategias" aria-pressed="false">Estratégias</button>
+    <button class="chip" data-v="temas" aria-pressed="false">Temas</button>
+    <button class="chip" data-v="ger" aria-pressed="false">Gerador</button>
+    <button class="chip" data-v="clientes" aria-pressed="false">Clientes</button>
   </div>
-  <div id="form" class="hide" style="margin-top:14px">
-    <div class="row">
-      <div><label for="f-user">Nome de usuário</label><input id="f-user" placeholder="ex.: dra.exemplo" autocapitalize="none"></div>
-      <div><label for="f-id">ID da conta (Graph API)</label><input id="f-id" inputmode="numeric"></div>
-      <div><label for="f-tok">Token de acesso</label><input id="f-tok" type="password" autocomplete="off"></div>
+</div>
+
+<section id="v-painel">
+  <div class="panel"><h2>Período</h2>
+    <div class="chips" id="per" role="group" aria-label="Período">
+      <button class="chip" data-d="7" aria-pressed="false">Última semana</button>
+      <button class="chip" data-d="15" aria-pressed="false">15 dias</button>
+      <button class="chip" data-d="30" aria-pressed="true">Último mês</button>
+      <button class="chip" data-d="-1" aria-pressed="false">Tudo</button>
+      <button class="chip" data-d="0" aria-pressed="false">Personalizado</button>
     </div>
-    <button class="big" id="save">Salvar perfil</button>
+    <div class="row dates" id="dates"><div><label for="d1">De</label><input type="date" id="d1"></div><div><label for="d2">Até</label><input type="date" id="d2"></div></div>
   </div>
-  <div class="plist" id="plist"></div>
-</section>
-
-<section class="panel" aria-labelledby="t-per">
-  <h2 id="t-per">Período</h2>
-  <div class="chips" role="group" aria-label="Período">
-    <button class="chip" data-d="7" aria-pressed="true">Última semana</button>
-    <button class="chip" data-d="15" aria-pressed="false">Últimos 15 dias</button>
-    <button class="chip" data-d="30" aria-pressed="false">Último mês</button>
-    <button class="chip" data-d="0" aria-pressed="false">Personalizado</button>
-  </div>
-  <div class="row dates" id="dates">
-    <div><label for="d1">De</label><input type="date" id="d1"></div>
-    <div><label for="d2">Até</label><input type="date" id="d2"></div>
-  </div>
-  <button class="big" id="go">Analisar métricas</button>
-</section>
-
-<div id="out" class="hide">
   <div class="kpis" id="kpis"></div>
-  <section class="panel"><h2>Alcance e engajamento por publicação</h2><div class="chart"><canvas id="c1"></canvas></div></section>
+  <div class="panel"><h2>O que está funcionando</h2><ul class="tips" id="resumo"></ul></div>
+  <div class="panel"><h2>Engajamento por conteúdo</h2><div class="chart"><canvas id="c1"></canvas></div></div>
+  <div class="panel"><h2>Comparação por tema</h2>
+    <label for="s-tema">Tema (com engajamento médio)</label><select id="s-tema"></select>
+    <div id="tcmp" class="hide"><div class="chart" style="margin-top:16px"><canvas id="c2"></canvas></div><ul class="tips" id="ttips"></ul></div>
+  </div>
+  <div class="panel"><h2>Conteúdos do período</h2><div id="lista"></div></div>
+</section>
 
-  <section class="panel">
-    <h2>Reel x carrossel do mesmo tema</h2>
-    <p class="muted" style="margin-top:0">Escolha um Reel e um carrossel sobre o mesmo assunto, publicados no período.</p>
-    <div class="vs">
-      <div><label for="s-reel">Reel</label><select id="s-reel"></select></div>
-      <div><label for="s-car">Carrossel</label><select id="s-car"></select></div>
+<section id="v-reg" class="hide">
+  <div class="panel"><h2 id="reg-t">Registrar conteúdo</h2>
+    <p class="muted" style="margin-top:0">Preencha a hipótese ao planejar e volte depois para lançar as métricas e o aprendizado.</p>
+    <div class="row">
+      <div><label for="r-data">Data de publicação</label><input type="date" id="r-data"></div>
+      <div><label for="r-fmt">Formato</label><select id="r-fmt"><option value="reel">Reel</option><option value="carrossel">Carrossel</option><option value="estatico">Imagem</option><option value="stories">Stories</option></select></div>
     </div>
-    <div id="cmp" class="hide">
-      <div class="chart" style="margin-top:16px"><canvas id="c2"></canvas></div>
-      <h3 style="margin-top:16px">O que melhorar nos próximos conteúdos</h3>
-      <ul class="tips" id="tips"></ul>
+    <div class="row"><div><label for="r-tema">Tema</label><input id="r-tema" list="dl-temas" placeholder="Assunto do conteúdo"></div><div><label for="r-pil">Pilar</label><input id="r-pil"></div><div><label for="r-st">Status</label><select id="r-st"><option value="planejado">Planejado</option><option value="produzido">Produzido</option><option value="publicado" selected>Publicado</option></select></div></div>
+    <div class="row"><div><label for="r-head">Headline / gancho</label><input id="r-head"></div><div><label for="r-cta">CTA</label><input id="r-cta"></div></div>
+    <div class="row"><div><label for="r-corpo">Conteúdo (corpo do post, roteiro ou cards)</label><textarea id="r-corpo" rows="4"></textarea></div></div>
+    <div class="row"><div><label for="r-hip">Hipótese (o que espero que aconteça e por quê)</label><textarea id="r-hip" rows="2"></textarea></div></div>
+    <div class="row">
+      <div><label for="r-alc">Alcance</label><input type="number" inputmode="numeric" min="0" id="r-alc"></div>
+      <div><label for="r-cur">Curtidas</label><input type="number" inputmode="numeric" min="0" id="r-cur"></div>
+      <div><label for="r-com">Comentários</label><input type="number" inputmode="numeric" min="0" id="r-com"></div>
+      <div><label for="r-sal">Salvamentos</label><input type="number" inputmode="numeric" min="0" id="r-sal"></div>
+      <div><label for="r-comp">Compartilhamentos</label><input type="number" inputmode="numeric" min="0" id="r-comp"></div>
     </div>
-  </section>
+    <div class="row"><div><label for="r-apr">Aprendizado (o que os números mostram)</label><textarea id="r-apr" rows="2"></textarea></div></div>
+    <button class="big" id="r-save">Salvar conteúdo</button>
+    <button class="ghost big hide" id="r-cancel">Cancelar edição</button>
+  </div>
+</section>
+
+<section id="v-cal" class="hide">
+  <div class="panel"><h2>Calendário do mês</h2>
+    <div class="row"><div><label for="k-mes">Mês</label><input type="month" id="k-mes"></div><div style="flex:0 0 auto"><button id="k-add">Adicionar post</button></div></div>
+    <ul class="tips" id="kres"></ul>
+    <div id="klist" style="margin-top:14px"></div>
+  </div>
+  <div class="panel"><h2>Criar o mês com o Claude</h2>
+    <p class="muted" style="margin-top:0">Preencha o perfil do cliente na aba Clientes (contexto e frequência). Depois monte o prompt, cole no chat do Claude e volte aqui para importar o resultado.</p>
+    <div class="row"><button id="k-p3">1. Prompt da distribuição</button><button id="k-p4" class="ghost">2. Prompt dos conteúdos</button></div>
+    <textarea id="k-out" rows="10" readonly class="hide"></textarea><button class="big hide" id="k-copy">Copiar prompt</button>
+  </div>
+  <div class="panel"><h2>Importar posts</h2>
+    <p class="muted" style="margin-top:0">Cole a tabela final que o Claude entregar, uma linha por post: AAAA-MM-DD | formato | pilar | tema</p>
+    <textarea id="k-imp" rows="6"></textarea><button class="big" id="k-do">Importar como planejados</button>
+  </div>
+  <div class="panel"><h2>Checklist de revisão</h2><div id="k-chk"></div></div>
+</section>
+
+<section id="v-ger" class="hide">
+  <div class="panel"><h2>Gerador de headlines</h2>
+    <p class="muted" style="margin-top:0">Monta opções a partir de fórmulas e prioriza as que já funcionaram no seu banco. Ajuste ao tom do cliente antes de usar.</p>
+    <div class="row"><div><label for="g-tema">Tema</label><input id="g-tema" list="dl-temas" placeholder="Escolha ou escreva um tema"></div></div>
+    <div class="row"><button id="g-go">Gerar headlines</button><button class="ghost" id="g-brief">Briefing para pedir ao Claude</button></div>
+    <div id="gres" style="margin-top:14px"></div>
+  </div>
+  <div class="panel hide" id="gb"><h2>Briefing para o Claude</h2><p class="muted" style="margin-top:0">Copie, cole no chat e traga as melhores headlines para o banco.</p><textarea id="gbt" rows="12" readonly></textarea><button class="big" id="g-copy">Copiar</button></div>
+</section>
+
+<section id="v-clientes" class="hide">
+  <div class="panel"><h2>Novo cliente</h2>
+    <div class="row">
+      <div><label for="c-nome">Nome</label><input id="c-nome"></div>
+      <div><label for="c-nicho">Nicho</label><input id="c-nicho" list="dl-nichos" placeholder="ex.: corretor de imóveis"></div>
+    </div>
+    <div class="row"><div><label for="c-notas">Notas</label><textarea id="c-notas" rows="2"></textarea></div></div>
+    <button class="big" id="c-save">Salvar cliente</button>
+  </div>
+  <div class="panel"><h2>Clientes</h2><div id="clist"></div></div>
+  <div class="panel"><h2 id="pf-t">Perfil do cliente</h2><p class="muted" style="margin-top:0">Contexto e frequência do cliente selecionado. Quanto mais detalhe, melhor o Claude planeja o mês.</p><div id="pf"></div><button class="big" id="pf-save">Salvar perfil</button></div>
+</section>
 </div>
-</div>
+<datalist id="dl-temas"></datalist><datalist id="dl-nichos"></datalist>
 </main>
 
 <script>
 /* ===== CONFIGURAÇÃO ===== */
-const CFG={SUPABASE_URL:'https://wqzedkpxriudwpwvkvvh.supabase.co',SUPABASE_KEY:'sb_publishable_zlfg3DrS8KkSzvvWzuOsdA_dy_rfaOl',GRAPH:'https://graph.facebook.com/v21.0',MAX_POSTS:40};
+const CFG={SUPABASE_URL:'https://wqzedkpxriudwpwvkvvh.supabase.co',SUPABASE_KEY:'sb_publishable_zlfg3DrS8KkSzvvWzuOsdA_dy_rfaOl'};
 
-const $=s=>document.querySelector(s), nf=n=>Math.round(n).toLocaleString('pt-BR'), pc=n=>n.toFixed(1).replace('.',',')+'%';
-const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let db=null,profiles=[],days=7,posts=[],followers=0,charts={};
-try{if(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY)db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const nf=n=>Math.round(n).toLocaleString('pt-BR'),pc=n=>n.toFixed(1).replace('.',',')+'%';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=d=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const FM={reel:'Reel',carrossel:'Carrossel',estatico:'Imagem',stories:'Stories'},ST={alta:'Em alta',funciona:'Funciona',ideia:'Ideia',nao:'Não funciona'};
+const eng=c=>c.alcance?(c.curtidas+c.comentarios+c.salvamentos+c.compartilhamentos)/c.alcance*100:0;
+const k1=(c,k)=>c.alcance?c[k]/c.alcance*1000:0;
+const avg=a=>a.length?a.reduce((t,x)=>t+x,0)/a.length:0;
+const med=a=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+const grp=(a,f)=>a.reduce((m,x)=>{const k=f(x);(m[k]=m[k]||[]).push(x);return m},{});
+const tk=c=>(c.tema||'').trim().toLowerCase(),N=s=>Math.max(0,parseInt($(s).value)||0);
+const opts=o=>Object.entries(o).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+const FORM={curiosidade:['Curiosidade','O que ninguém te conta sobre {t}'],erro:['Erro comum','O erro mais comum em {t} (e como evitar)'],lista:['Lista','3 coisas que você precisa saber sobre {t}'],mito:['Mito','{t}: 3 mitos que você ainda acredita'],pergunta:['Pergunta','Você realmente entende {t}?'],alerta:['Alerta','Pare de fazer isso com {t}'],passos:['Passo a passo','Como resolver {t} em 3 passos'],antes:['Antes e depois','Antes e depois: {t} na prática']};
+const FL={livre:'Livre',...Object.fromEntries(Object.entries(FORM).map(([k,v])=>[k,v[0]]))};
+const BK={
+ temas:{tt:'Banco de temas',nome:'Tema',ph:'Assunto do conteúdo',d:'ideia',st:{alta:'Em alta',funciona:'Funciona',ideia:'Ideia',nao:'Não funciona'}},
+ estrategias:{tt:'Banco de estratégias',nome:'Estratégia',ph:'Ex.: começar pelo erro mais comum',d:'testar',st:{funciona:'Funciona',testar:'Para testar',descartada:'Descartada'}},
+ headlines:{tt:'Banco de headlines',nome:'Headline',ph:'Texto da headline',d:'testar',f:1,st:{funciona:'Funcionou',testar:'Para testar',nao:'Não funcionou'}}
+};
+const SL={planejado:'Planejado',produzido:'Produzido',publicado:'Publicado'},SB={planejado:'v0',produzido:'v2',publicado:'v1'};
+const PF=[['publico','Público (quem segue)'],['tamanho','Tamanho do público'],['objetivo','Objetivo'],['tom','Tom de voz',1],['linguagem','Linguagem (como falo)'],['valores','Valores'],['referencias','Referências (quem admiro)'],['pilares','Pilares do conteúdo (nome e %)',1],['naoPostar','O que NÃO postar'],['sensiveis','Temas sensíveis'],['horarios','Horários preferidos'],['trends','Trends que gosto'],['freq','Frequência (posts por semana e por dia)'],['formatos','Formatos por mês (ex.: carrossel 8x, reel 8x, estático 4x, stories diário)',1],['dias','Dias e horários (ex.: seg 9h, ter 9h, dom descanso)',1]];
+const CK=['Todos os posts têm o meu tom?','Pilares estão bem distribuídos?','Headlines prendem?','Emojis fazem sentido?','Formatos estão variados?','Temas fazem sentido?','CTAs são claros?','Pronto para copiar e colar?'];
+const NF={reel:'reel',reels:'reel',carrossel:'carrossel',carrosel:'carrossel',estatico:'estatico','estático':'estatico',imagem:'estatico','post estático':'estatico','post estatico':'estatico',stories:'stories',story:'stories'};
+let db=null,cli=[],con=[],bk={temas:[],estrategias:[],headlines:[]},gen=[],cur=null,days=30,view='painel',editId=null,charts={};
+try{cur=localStorage.getItem('cur')}catch(e){}
+try{db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
+const say=(t,err)=>{$('#msg').innerHTML=t?`<div class="msg ${err?'err':''}" role="status">${t}</div>`:''};
 
-function say(t,err){$('#msg').innerHTML=t?`<div class="msg ${err?'err':''}" role="status">${t}</div>`:''}
-
-/* ===== LOGIN E PERFIS (Supabase) ===== */
+/* ===== LOGIN ===== */
 function show(on){
   $('#login').classList.toggle('hide',on);$('#app').classList.toggle('hide',!on);$('#logout').classList.toggle('hide',!on);
-  if(on)loadProfiles();else{profiles=[];posts=[];$('#out').classList.add('hide')}
+  if(on)loadAll();else{cli=[];con=[];bk={temas:[],estrategias:[],headlines:[]}}
 }
 async function login(){
   const {error}=await db.auth.signInWithPassword({email:$('#l-mail').value.trim(),password:$('#l-pass').value});
@@ -149,129 +229,273 @@ async function login(){
   $('#l-pass').value='';say('');
 }
 async function init(){
-  if(!db){$('#login').classList.add('hide');return say('Preencha SUPABASE_URL e SUPABASE_KEY no início do script para usar o app.',1)}
+  if(!db)return say('Preencha SUPABASE_URL e SUPABASE_KEY no início do script.',1);
   const {data}=await db.auth.getSession();show(!!data.session);
   db.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(()=>show(ev==='SIGNED_IN'),0)});
 }
-async function loadProfiles(){
-  const {data,error}=await db.from('profiles').select('*').order('username');
-  if(error)say('Erro ao ler perfis: '+esc(error.message),1);
-  profiles=data||[];renderProfiles();
+
+/* ===== DADOS ===== */
+async function loadAll(){
+  const r=await Promise.all([db.from('clientes').select('*').order('nome'),db.from('conteudos').select('*').order('data',{ascending:false}),...Object.keys(BK).map(k=>db.from(k).select('*').order('created_at',{ascending:false}))]);
+  const er=r.find(x=>x.error)?.error;
+  if(er)say('Erro ao carregar: '+esc(er.message)+'. Você rodou o SQL das tabelas?',1);
+  cli=r[0].data||[];con=r[1].data||[];Object.keys(BK).forEach((k,i)=>bk[k]=r[i+2].data||[]);
+  if(!cli.find(x=>x.id===cur))cur=cli[0]?.id||null;
+  renderAll();
 }
-async function saveProfile(){
-  const username=$('#f-user').value.trim().replace(/^@/,'').toLowerCase(),ig_user_id=$('#f-id').value.trim(),token=$('#f-tok').value.trim();
-  if(!username||!ig_user_id||!token)return say('Preencha usuário, ID da conta e token.',1);
-  const {error}=await db.from('profiles').upsert({username,ig_user_id,token},{onConflict:'username'});
-  if(error)return say('Erro ao salvar: '+esc(error.message),1);
-  ['#f-user','#f-id','#f-tok'].forEach(i=>$(i).value='');$('#form').classList.add('hide');say('Perfil @'+esc(username)+' salvo.');
-  await loadProfiles();$('#sel').value=username;
+async function save(table,obj,id){
+  const {error}=id?await db.from(table).update(obj).eq('id',id):await db.from(table).insert(obj);
+  if(error){say('Erro ao salvar: '+esc(error.message),1);return false}say('');return true;
 }
-async function delProfile(u){
-  if(!confirm('Remover @'+u+'?'))return;
-  const {error}=await db.from('profiles').delete().eq('username',u);
-  if(error)say('Erro ao remover: '+esc(error.message),1);
-  loadProfiles();
-}
-function renderProfiles(){
-  $('#sel').innerHTML=profiles.length?profiles.map(p=>`<option value="${esc(p.username)}">@${esc(p.username)}</option>`).join(''):'<option value="">Nenhum perfil salvo</option>';
-  $('#plist').innerHTML=profiles.map(p=>`<span class="tag">@${esc(p.username)}<button data-del="${esc(p.username)}" aria-label="Remover @${esc(p.username)}">Remover</button></span>`).join('');
+async function remove(table,id,msg){
+  if(!confirm(msg))return;
+  const {error}=await db.from(table).delete().eq('id',id);
+  if(error)say('Erro ao excluir: '+esc(error.message),1);loadAll();
 }
 
-/* ===== INSTAGRAM GRAPH API ===== */
-async function api(path,params,token){
-  const r=await fetch(`${CFG.GRAPH}/${path}?`+new URLSearchParams({...params,access_token:token}));
-  const j=await r.json();if(j.error)throw new Error(j.error.message);return j;
+/* ===== NAVEGAÇÃO ===== */
+function go(v){
+  view=v;['painel','cal','reg','headlines','estrategias','temas','ger','clientes'].forEach(x=>$('#v-'+x).classList.toggle('hide',x!==v));
+  $$('#nav .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+  if(v==='painel')painel();if(v==='cal')calRender();window.scrollTo(0,0);
 }
-function range(){
-  if(days>0){const u=new Date(),s=new Date();s.setDate(s.getDate()-days);return[s,u]}
-  const a=$('#d1').value,b=$('#d2').value;if(!a||!b)throw new Error('Escolha as datas inicial e final.');
-  const s=new Date(a+'T00:00:00'),u=new Date(b+'T23:59:59');if(s>u)throw new Error('A data inicial vem depois da final.');return[s,u]
-}
-async function analyze(){
-  const p=profiles.find(x=>x.username===$('#sel').value);
-  if(!p)return say('Adicione e selecione um perfil.',1);
-  $('#go').disabled=true;$('#go').textContent='Analisando…';say('');
-  try{
-    const [s,u]=range(),ts=d=>Math.floor(d/1000);
-    const acc=await api(p.ig_user_id,{fields:'followers_count'},p.token);followers=acc.followers_count||0;
-    const m=await api(p.ig_user_id+'/media',{fields:'caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count',since:ts(s),until:ts(u),limit:CFG.MAX_POSTS},p.token);
-    const list=(m.data||[]).filter(x=>{const t=new Date(x.timestamp);return t>=s&&t<=u});
-    if(!list.length){$('#out').classList.add('hide');return say('Nenhuma publicação neste período.')}
-    const ins=await Promise.allSettled(list.map(x=>api(x.id+'/insights',{metric:'reach,saved,shares'},p.token)));
-    posts=list.map((x,i)=>{
-      const v={};if(ins[i].status==='fulfilled')ins[i].value.data.forEach(d=>v[d.name]=d.values?.[0]?.value||0);
-      const o={id:x.id,date:new Date(x.timestamp),cap:(x.caption||'Sem legenda').slice(0,40),link:x.permalink,
-        type:x.media_product_type==='REELS'?'reel':x.media_type==='CAROUSEL_ALBUM'?'car':'outro',
-        likes:x.like_count||0,comments:x.comments_count||0,saved:v.saved||0,shares:v.shares||0,reach:v.reach||0};
-      o.inter=o.likes+o.comments+o.saved+o.shares;o.eng=o.reach?o.inter/o.reach*100:0;return o}).sort((a,b)=>a.date-b.date);
-    render();
-  }catch(e){say('Não foi possível analisar: '+esc(e.message),1)}
-  finally{$('#go').disabled=false;$('#go').textContent='Analisar métricas'}
+function renderAll(){
+  $('#sel').innerHTML=cli.length?cli.map(c=>`<option value="${c.id}" ${c.id===cur?'selected':''}>${esc(c.nome)}${c.nicho?' ('+esc(c.nicho)+')':''}</option>`).join(''):'<option value="">Cadastre um cliente</option>';
+  const nichos=[...new Set([...cli.map(c=>c.nicho),...Object.values(bk).flat().map(t=>t.nicho)].filter(Boolean))].sort();
+  $('#dl-nichos').innerHTML=nichos.map(n=>`<option value="${esc(n)}">`).join('');
+  const usados=[...new Set([...con.filter(c=>c.cliente_id===cur).map(c=>c.tema),...bk.temas.map(t=>t.tema)].filter(Boolean))];
+  $('#dl-temas').innerHTML=usados.map(n=>`<option value="${esc(n)}">`).join('');
+  Object.keys(BK).forEach(renderBank);
+  $('#clist').innerHTML=cli.length?cli.map(c=>`<div class="item"><div class="it-top"><b>${esc(c.nome)}</b><span class="muted">${esc(c.nicho||'')}</span></div>${c.notas?`<div class="muted">${esc(c.notas)}</div>`:''}<div class="acts"><button class="ghost sm" data-cdel="${c.id}">Excluir</button></div></div>`).join(''):'<p class="muted">Nenhum cliente ainda. Cadastre o primeiro acima.</p>';
+  pfFill();go(view);
 }
 
-/* ===== RENDER ===== */
-const sum=(a,k)=>a.reduce((t,x)=>t+x[k],0);
-function render(){
-  $('#out').classList.remove('hide');
-  const R=sum(posts,'reach'),I=sum(posts,'inter'),eng=R?I/R*100:0;
-  const k=[['k1',nf(followers),'Seguidores'],['k2',nf(R),'Alcance (soma)'],['k3',pc(eng),'Engajamento'],['k4',nf(sum(posts,'likes')),'Curtidas'],
-    ['k5',nf(sum(posts,'comments')),'Comentários'],['k6',nf(sum(posts,'saved')),'Salvamentos'],['k7',nf(sum(posts,'shares')),'Compartilhamentos'],['k7',posts.length,'Publicações']];
+/* ===== PAINEL ===== */
+function inP(d){
+  if(days<0)return true;let a,b;
+  if(days>0){b=new Date();b.setHours(23,59,59);a=new Date();a.setDate(a.getDate()-days);a.setHours(0,0,0,0)}
+  else{a=new Date(($('#d1').value||'1970-01-01')+'T00:00:00');b=new Date(($('#d2').value||'2999-12-31')+'T23:59:59')}
+  const t=new Date(d+'T12:00:00');return t>=a&&t<=b;
+}
+function verdict(c,base,n){
+  if(c.status==='planejado')return['Planejado','v0'];if(c.status==='produzido')return['Produzido','v0'];if(n<3||!c.alcance)return['Poucos dados','v0'];const e=eng(c);
+  return e>=base*1.2?['Funcionando','v1']:e<=base*.8?['Abaixo da média','v3']:['Na média','v2'];
+}
+function painel(){
+  const all=con.filter(c=>c.cliente_id===cur),L=all.filter(c=>inP(c.data)).sort((a,b)=>a.data<b.data?-1:1);
+  const wr=all.filter(c=>c.alcance>0),base=med(wr.map(eng)),n=wr.length,M=L.filter(c=>c.alcance>0);
+  const k=[['k1',L.length,'Conteúdos'],['k2',nf(avg(M.map(c=>c.alcance))),'Alcance médio'],['k3',pc(avg(M.map(eng))),'Engajamento médio'],
+    ['k4',nf(avg(M.map(c=>k1(c,'salvamentos')))),'Salvamentos por 1.000'],['k5',nf(avg(M.map(c=>k1(c,'compartilhamentos')))),'Compart. por 1.000'],['k6',n>=3?pc(base):'—','Mediana do cliente']];
   $('#kpis').innerHTML=k.map(x=>`<div class="kpi ${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
-  const css=getComputedStyle(document.documentElement),txt=css.getPropertyValue('--txt').trim()||'#223A5E';
-  Chart.defaults.color=txt;Chart.defaults.font.family='Lekton, monospace';
-  charts.a?.destroy();
-  charts.a=new Chart($('#c1'),{data:{labels:posts.map(p=>p.date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),datasets:[
-    {type:'bar',label:'Alcance',data:posts.map(p=>p.reach),backgroundColor:'#6E9ECC',borderRadius:12,yAxisID:'y'},
-    {type:'line',label:'Engajamento (%)',data:posts.map(p=>+p.eng.toFixed(2)),borderColor:'#223A5E',backgroundColor:'#223A5E',tension:.3,yAxisID:'y1'}]},
-    options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}},y1:{position:'right',beginAtZero:true,grid:{display:false}}}}});
-  const opt=t=>{const l=posts.filter(p=>p.type===t);return l.length?l.map(p=>`<option value="${p.id}">${p.date.toLocaleDateString('pt-BR')} — ${esc(p.cap)}</option>`).join(''):'<option value="">Nenhum no período</option>'};
-  $('#s-reel').innerHTML=opt('reel');$('#s-car').innerHTML=opt('car');compare();
+  const t=[];
+  if(!cur)t.push('Cadastre um cliente na aba Clientes para começar.');
+  else if(!L.length)t.push('Nenhum conteúdo neste período. Registre conteúdos ou mude o período.');
+  else{
+    const fe=Object.entries(grp(M,c=>c.formato)).map(([f,v])=>[f,avg(v.map(eng))]).sort((a,b)=>b[1]-a[1]);
+    if(fe.length>1)t.push(`${FM[fe[0][0]]} engaja mais (${pc(fe[0][1])}) que ${FM[fe.at(-1)[0]]} (${pc(fe.at(-1)[1])}). Aproveite o que funcionou nele e teste no outro formato.`);
+    const te=Object.entries(grp(M.filter(tk),tk)).map(([,v])=>[v[0].tema,avg(v.map(eng)),v.length]).sort((a,b)=>b[1]-a[1]);
+    if(te.length)t.push(`Tema que mais engaja: "${esc(te[0][0])}" (${pc(te[0][1])}, ${te[0][2]} conteúdo${te[0][2]>1?'s':''}). Vale repetir com outro ângulo.`);
+    if(te.length>1)t.push(`Tema mais fraco: "${esc(te.at(-1)[0])}" (${pc(te.at(-1)[1])}). Antes de descartar, teste outro gancho e outro formato.`);
+    if(n>=3)t.push(`${L.filter(c=>verdict(c,base,n)[1]==='v1').length} de ${L.length} conteúdos do período estão acima da mediana do próprio cliente.`);
+    else t.push('Há menos de 3 conteúdos com alcance registrado, então os vereditos ainda não são confiáveis.');
+    L.filter(c=>c.aprendizado).slice(-3).forEach(c=>t.push(`Aprendizado de ${fd(c.data)}: ${esc(c.aprendizado)}`));
+  }
+  $('#resumo').innerHTML=t.map(x=>`<li>${x}</li>`).join('');
+  const tx=getComputedStyle(document.documentElement).getPropertyValue('--txt').trim()||'#223A5E';
+  Chart.defaults.color=tx;Chart.defaults.font.family='Lekton, monospace';charts.a?.destroy();
+  charts.a=new Chart($('#c1'),{data:{labels:M.map(c=>fd(c.data)),datasets:[
+    {type:'bar',label:'Engajamento (%)',data:M.map(c=>+eng(c).toFixed(2)),backgroundColor:'#6E9ECC',borderRadius:12},
+    {type:'line',label:'Mediana do cliente',data:M.map(()=>+base.toFixed(2)),borderColor:'#223A5E',borderDash:[6,4],pointRadius:0}]},
+    options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}}}}});
+  $('#lista').innerHTML=L.length?[...L].reverse().map(c=>{const[v,cl]=verdict(c,base,n);
+    return `<div class="item"><div class="it-top"><b>${fd(c.data)}, ${FM[c.formato]||esc(c.formato)}</b><span class="badge ${cl}">${v}</span></div>
+    <div>${esc(c.tema||'Sem tema')}${c.alcance?`: engajamento ${pc(eng(c))}, alcance ${nf(c.alcance)}`:': sem métricas ainda'}</div>
+    ${c.headline?`<div class="muted">Gancho: ${esc(c.headline)}</div>`:''}${c.hipotese?`<div class="muted">Hipótese: ${esc(c.hipotese)}</div>`:''}
+    <div class="acts"><button class="ghost sm" data-ed="${c.id}">Editar</button><button class="ghost sm" data-del="${c.id}">Excluir</button></div></div>`}).join(''):'<p class="muted">Nada por aqui ainda.</p>';
+  const ts=Object.entries(grp(wr.filter(tk),tk)).map(([k,v])=>[k,v[0].tema,avg(v.map(eng))]).sort((a,b)=>b[2]-a[2]),pv=$('#s-tema').value;
+  $('#s-tema').innerHTML=ts.length?ts.map(x=>`<option value="${esc(x[0])}" ${x[0]===pv?'selected':''}>${esc(x[1])}: ${pc(x[2])}</option>`).join(''):'<option value="">Registre conteúdos com tema e métricas</option>';
+  tcmp();
+}
+function tcmp(){
+  const k=$('#s-tema').value,l=con.filter(c=>c.cliente_id===cur&&tk(c)===k&&c.alcance>0);
+  if(!k||!l.length){$('#tcmp').classList.add('hide');return}
+  $('#tcmp').classList.remove('hide');
+  const g=grp(l,c=>c.formato),fs=Object.keys(g),ms=[['curtidas','Curtidas'],['comentarios','Comentários'],['salvamentos','Salvamentos'],['compartilhamentos','Compartilhamentos']],col=['#223A5E','#6E9ECC','#9FC0E3','#4D79A8'];
+  charts.b?.destroy();
+  charts.b=new Chart($('#c2'),{type:'bar',data:{labels:ms.map(m=>m[1]),datasets:fs.map((f,i)=>({label:FM[f]||f,data:ms.map(m=>+avg(g[f].map(c=>k1(c,m[0]))).toFixed(1)),backgroundColor:col[i%4],borderRadius:12}))},
+    options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Interações por 1.000 pessoas alcançadas'}},scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}}}}});
+  const t=[],E=fs.map(f=>[f,avg(g[f].map(eng))]).sort((a,b)=>b[1]-a[1]);
+  if(fs.length<2)t.push(`Este tema só foi publicado em ${FM[fs[0]]||fs[0]}. Publique em outro formato para comparar de verdade.`);
+  else{
+    t.push(`Neste tema, ${FM[E[0][0]]} engajou mais (${pc(E[0][1])}) que ${FM[E.at(-1)[0]]} (${pc(E.at(-1)[1])}).`);
+    [['salvamentos','salvamentos','feche pedindo para salvar e organize o conteúdo em passos'],['compartilhamentos','compartilhamentos','inclua uma frase que a pessoa queira enviar a alguém'],['comentarios','comentários','termine com uma pergunta direta ou uma palavra-chave']].forEach(([m,nm,a])=>{
+      const r=fs.map(f=>[f,avg(g[f].map(c=>k1(c,m)))]).sort((x,y)=>y[1]-x[1]);
+      if(r[0][1]>0&&r[0][1]>r.at(-1)[1]*1.3)t.push(`${FM[r[0][0]]} gerou mais ${nm}. No ${FM[r.at(-1)[0]]}, ${a}.`)});
+  }
+  t.push('Com poucos conteúdos por formato, trate isso como hipótese e repita o teste antes de decidir.');
+  $('#ttips').innerHTML=t.map(x=>`<li>${x}</li>`).join('');
 }
 
-/* ===== COMPARATIVO E SUGESTÕES ===== */
-const per1k=(p,k)=>p.reach?p[k]/p.reach*1000:0;
-function compare(){
-  const r=posts.find(p=>p.id===$('#s-reel').value),c=posts.find(p=>p.id===$('#s-car').value);
-  if(!r||!c){$('#cmp').classList.add('hide');return}
-  $('#cmp').classList.remove('hide');
-  const ks=[['likes','Curtidas'],['comments','Comentários'],['saved','Salvamentos'],['shares','Compartilhamentos']];
-  charts.b?.destroy();
-  charts.b=new Chart($('#c2'),{type:'bar',data:{labels:ks.map(x=>x[1]),datasets:[
-    {label:'Reel',data:ks.map(x=>+per1k(r,x[0]).toFixed(1)),backgroundColor:'#223A5E',borderRadius:12},
-    {label:'Carrossel',data:ks.map(x=>+per1k(c,x[0]).toFixed(1)),backgroundColor:'#9FC0E3',borderRadius:12}]},
-    options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Interações por 1.000 pessoas alcançadas'}},scales:{y:{beginAtZero:true,grid:{color:'rgba(109,158,204,.2)'}}}}});
-  const avg=sum(posts,'reach')?sum(posts,'inter')/sum(posts,'reach')*100:0,t=[];
-  const up=(a,b)=>b?(a/b-1)*100:0;
-  if(r.reach>c.reach*1.3)t.push(`O Reel alcançou ${nf(up(r.reach,c.reach))}% mais pessoas. Use Reels para atrair público novo e o carrossel para aprofundar o tema com quem já chegou.`);
-  else if(c.reach>r.reach*1.3)t.push(`O carrossel alcançou ${nf(up(c.reach,r.reach))}% mais pessoas. No próximo Reel, reforce o gancho dos primeiros segundos e a promessa da capa.`);
-  else t.push('O alcance dos dois formatos ficou parecido. A diferença está no que as pessoas fizeram depois de ver o conteúdo.');
-  if(per1k(c,'saved')>per1k(r,'saved')*1.3)t.push('O carrossel gerou mais salvamentos. Traga o formato de passo a passo ou checklist para o Reel e feche com "salve para consultar depois".');
-  else if(per1k(r,'saved')>per1k(c,'saved')*1.3)t.push('O Reel gerou mais salvamentos. Aproveite esse tema num carrossel com mais detalhes e convide a salvar na última lâmina.');
-  if(per1k(c,'shares')>per1k(r,'shares')*1.3)t.push('O carrossel foi mais compartilhado. No Reel, inclua uma frase que a pessoa queira enviar para alguém e peça "envie para quem precisa ver isso".');
-  else if(per1k(r,'shares')>per1k(c,'shares')*1.3)t.push('O Reel foi mais compartilhado. Adicione um CTA de envio na última lâmina do carrossel.');
-  if(per1k(r,'comments')<per1k(c,'comments')*.7||per1k(c,'comments')<per1k(r,'comments')*.7)t.push('Os comentários variam bastante entre os formatos. Termine o formato mais fraco com uma pergunta direta ou uma palavra-chave para comentar.');
-  [[r,'Reel'],[c,'Carrossel']].forEach(([p,n])=>{if(avg&&p.eng<avg*.8)t.push(`O engajamento do ${n} (${pc(p.eng)}) ficou abaixo da média do período (${pc(avg)}). Revise o gancho e o CTA desse formato.`)});
-  $('#tips').innerHTML=t.map(x=>`<li>${x}</li>`).join('');
+/* ===== REGISTRAR ===== */
+function clearReg(){
+  editId=null;['#r-tema','#r-pil','#r-head','#r-cta','#r-corpo','#r-hip','#r-apr','#r-alc','#r-cur','#r-com','#r-sal','#r-comp'].forEach(i=>$(i).value='');$('#r-st').value='publicado';
+  $('#r-data').value=new Date().toISOString().slice(0,10);$('#r-fmt').value='reel';
+  $('#reg-t').textContent='Registrar conteúdo';$('#r-cancel').classList.add('hide');
+}
+function editCon(id){
+  const c=con.find(x=>x.id===id);if(!c)return;editId=id;
+  const m={'#r-data':'data','#r-fmt':'formato','#r-tema':'tema','#r-head':'headline','#r-cta':'cta','#r-hip':'hipotese','#r-apr':'aprendizado','#r-alc':'alcance','#r-cur':'curtidas','#r-com':'comentarios','#r-sal':'salvamentos','#r-comp':'compartilhamentos','#r-st':'status','#r-pil':'pilar','#r-corpo':'corpo'};
+  Object.entries(m).forEach(([s,k])=>$(s).value=c[k]??'');
+  $('#reg-t').textContent='Editar conteúdo';$('#r-cancel').classList.remove('hide');go('reg');
+}
+async function saveCon(){
+  if(!cur)return say('Cadastre e selecione um cliente primeiro.',1);
+  if(!$('#r-data').value)return say('Escolha a data de publicação.',1);
+  const o={cliente_id:cur,data:$('#r-data').value,formato:$('#r-fmt').value,tema:$('#r-tema').value.trim(),headline:$('#r-head').value.trim(),cta:$('#r-cta').value.trim(),
+    status:$('#r-st').value,pilar:$('#r-pil').value.trim(),corpo:$('#r-corpo').value.trim(),hipotese:$('#r-hip').value.trim(),aprendizado:$('#r-apr').value.trim(),alcance:N('#r-alc'),curtidas:N('#r-cur'),comentarios:N('#r-com'),salvamentos:N('#r-sal'),compartilhamentos:N('#r-comp')};
+  if(await save('conteudos',o,editId)){clearReg();view='painel';await loadAll();say('Conteúdo salvo.')}
+}
+
+/* ===== BANCOS (temas, estratégias, headlines) ===== */
+function mkBank(k){
+  const b=BK[k],s=document.createElement('section');s.id='v-'+k;s.className='hide';
+  s.innerHTML=`<div class="panel"><h2>Novo item</h2>
+  <div class="row"><div><label for="${k}-n">Nicho</label><input id="${k}-n" list="dl-nichos"></div><div><label for="${k}-s">Situação</label><select id="${k}-s">${opts(b.st)}</select></div>${b.f?`<div><label for="${k}-f">Fórmula</label><select id="${k}-f">${opts(FL)}</select></div>`:''}</div>
+  <div class="row"><div><label for="${k}-t">${b.nome}</label><input id="${k}-t" placeholder="${b.ph}"></div></div>
+  <div class="row"><div><label for="${k}-o">Nota (fonte, contexto, resultado)</label><textarea id="${k}-o" rows="2"></textarea></div></div>
+  <button class="big" data-add="${k}">Salvar</button></div>
+  <div class="panel"><h2>${b.tt}</h2><label for="${k}-fn">Filtrar por nicho</label><select id="${k}-fn" data-fn="${k}"></select><div id="${k}-l" style="margin-top:14px"></div></div>`;
+  $('#app').appendChild(s);$('#'+k+'-s').value=b.d;
+}
+function renderBank(k){
+  const b=BK[k],fv=$('#'+k+'-fn').value,nichos=[...new Set(bk[k].map(t=>t.nicho).filter(Boolean))].sort();
+  $('#'+k+'-fn').innerHTML='<option value="">Todos os nichos</option>'+nichos.map(n=>`<option ${n===fv?'selected':''} value="${esc(n)}">${esc(n)}</option>`).join('');
+  const l=bk[k].filter(t=>!fv||t.nicho===fv),g=grp(l,t=>t.status);
+  $('#'+k+'-l').innerHTML=l.length?Object.keys(b.st).filter(s=>g[s]).map(s=>`<h3 style="margin:14px 0 8px">${b.st[s]}</h3>`+g[s].map(t=>`<div class="item"><div class="it-top"><b>${esc(t.tema)}</b><span class="muted">${esc(t.nicho||'')}</span></div>${t.formula?`<div class="muted">Fórmula: ${esc(FL[t.formula]||t.formula)}</div>`:''}${t.nota?`<div class="muted">${esc(t.nota)}</div>`:''}<div class="acts"><select data-bst="${k}|${t.id}" aria-label="Situação">${opts(b.st).replace(`value="${t.status}"`,`value="${t.status}" selected`)}</select><button class="ghost sm" data-bdel="${k}|${t.id}">Excluir</button></div></div>`).join('')).join(''):'<p class="muted">Vazio por enquanto. Traga aqui o que pesquisarmos no chat.</p>';
+}
+
+/* ===== PERFIL DO CLIENTE (passos 1 e 2) ===== */
+function pfBuild(){$('#pf').innerHTML=PF.map(([k,l,t])=>`<div class="row"><div><label for="pf-${k}">${l}</label>${t?`<textarea id="pf-${k}" rows="2"></textarea>`:`<input id="pf-${k}">`}</div></div>`).join('')}
+function pfFill(){const c=cli.find(x=>x.id===cur),p=c?.perfil||{};PF.forEach(([k])=>$('#pf-'+k).value=p[k]||'');$('#pf-t').textContent=c?'Perfil de '+c.nome:'Perfil do cliente'}
+async function pfSave(){
+  if(!cur)return say('Selecione um cliente.',1);
+  const o={};PF.forEach(([k])=>o[k]=$('#pf-'+k).value.trim());
+  if(await save('clientes',{perfil:o},cur)){await loadAll();say('Perfil salvo.')}
+}
+
+/* ===== GERADOR DE HEADLINES ===== */
+function ctx(){const c=cli.find(x=>x.id===cur),p=c.perfil||{};return `CONTEXTO DO CLIENTE\nNome / @: ${c.nome}\nNicho: ${c.nicho||'-'}\n`+PF.map(([k,l])=>`${l}: ${p[k]||'-'}`).join('\n')}
+function desemp(){
+  const nn=cli.find(x=>x.id===cur).nicho,all=con.filter(x=>x.cliente_id===cur&&x.alcance>0),t=[];
+  if(all.length>=3){
+    const te=Object.entries(grp(all.filter(tk),tk)).map(([,v])=>[v[0].tema,avg(v.map(eng))]).sort((a,b)=>b[1]-a[1]);
+    if(te.length)t.push('Temas que mais engajaram: '+te.slice(0,3).map(x=>`${x[0]} (${pc(x[1])})`).join('; '));
+    if(te.length>2)t.push('Temas mais fracos: '+te.slice(-2).map(x=>`${x[0]} (${pc(x[1])})`).join('; '));
+    t.push('Engajamento médio por formato: '+Object.entries(grp(all,x=>x.formato)).map(([f,v])=>`${FM[f]} ${pc(avg(v.map(eng)))}`).join('; '));
+    all.filter(x=>x.aprendizado).slice(0,3).forEach(x=>t.push('Aprendizado: '+x.aprendizado));
+  }else t.push('Ainda há poucos conteúdos medidos para este cliente.');
+  [['Temas em alta ou que funcionam','temas',['alta','funciona']],['Temas que não funcionaram','temas',['nao']],['Estratégias que funcionam','estrategias',['funciona']],['Headlines que funcionaram','headlines',['funciona']],['Headlines que não funcionaram','headlines',['nao']]].forEach(([n,k,s])=>{
+    const l=bk[k].filter(x=>(!nn||!x.nicho||x.nicho===nn)&&s.includes(x.status)).map(x=>x.tema).slice(0,8);if(l.length)t.push(n+': '+l.join('; '))});
+  return t.join('\n');
+}
+function gerar(){
+  const t=$('#g-tema').value.trim();if(!t)return say('Escolha ou escreva um tema.',1);
+  const nicho=cli.find(c=>c.id===cur)?.nicho||'';
+  const sc=k=>bk.headlines.filter(h=>h.formula===k&&(!nicho||h.nicho===nicho)).reduce((s,h)=>s+(h.status==='funciona'?1:h.status==='nao'?-1:0),0);
+  gen=Object.entries(FORM).map(([k,v])=>({k,n:v[0],txt:v[1].replace('{t}',t),s:sc(k)})).sort((a,b)=>b.s-a.s);
+  $('#gres').innerHTML=gen.map((x,i)=>`<div class="item"><div class="it-top"><b>${esc(x.txt)}</b>${x.s>0?'<span class="badge v1">Funcionou antes</span>':x.s<0?'<span class="badge v3">Não funcionou antes</span>':''}</div><div class="muted">Fórmula: ${x.n}</div><div class="acts"><button class="ghost sm" data-gsave="${i}">Salvar no banco</button></div></div>`).join('');
+}
+function briefing(){
+  if(!cli.find(x=>x.id===cur))return say('Selecione um cliente.',1);
+  $('#gbt').value=`${ctx()}\n\nDESEMPENHO REAL DESTE CLIENTE (dados do meu app)\n${desemp()}\n\nEscreva 10 headlines novas para o tema: "${$('#g-tema').value.trim()||'[tema]'}". Use o tom de voz e a linguagem do cliente, aproveite o que funcionou, evite o que não funcionou e indique em uma linha a fórmula de cada headline.`;
+  $('#gb').classList.remove('hide');
+}
+
+/* ===== CALENDÁRIO ===== */
+const ckKey=()=>'chk|'+cur+'|'+$('#k-mes').value;
+function calRender(){
+  const m=$('#k-mes').value||new Date().toISOString().slice(0,7);$('#k-mes').value=m;
+  const L=con.filter(c=>c.cliente_id===cur&&c.data.startsWith(m)).sort((a,b)=>a.data<b.data?-1:1),g=grp(L,c=>Math.min(5,Math.ceil(+c.data.slice(8)/7))),ws=Object.keys(g).sort(),t=[];
+  if(!cur)t.push('Cadastre um cliente na aba Clientes.');
+  else if(!L.length)t.push('Nenhum post neste mês. Monte o prompt abaixo, gere a distribuição com o Claude e importe a tabela.');
+  else{
+    t.push(`${L.length} posts no mês: ${Object.entries(grp(L,c=>c.formato)).map(([f,v])=>v.length+' '+(FM[f]||f)).join(', ')}.`);
+    let pw=0,pp='';
+    ws.forEach(w=>{const a=g[w],fs=new Set(a.map(c=>c.formato));
+      if(a.length>1&&fs.size===1)t.push(`Semana ${w}: só tem ${FM[[...fs][0]]}. Varie os formatos dentro da semana.`);
+      const pr=Object.entries(grp(a.filter(c=>c.pilar),c=>c.pilar)).sort((x,y)=>y[1].length-x[1].length)[0]?.[0]||'';
+      if(pr&&pr===pp&&+w-pw===1)t.push(`O pilar "${esc(pr)}" se repete nas semanas ${pw} e ${w}. Evite o mesmo pilar em semanas seguidas.`);
+      pw=+w;pp=pr});
+  }
+  $('#kres').innerHTML=t.map(x=>`<li>${x}</li>`).join('');
+  $('#klist').innerHTML=L.length?ws.map(w=>`<h3 style="margin:14px 0 8px">Semana ${w}</h3>`+g[w].map(c=>`<div class="item"><div class="it-top"><b>${fd(c.data)}, ${FM[c.formato]||esc(c.formato)}</b><span class="badge ${SB[c.status]||'v0'}">${SL[c.status]||'Publicado'}</span></div><div>${esc(c.tema||'Sem tema')}${c.pilar?' (pilar: '+esc(c.pilar)+')':''}</div>${c.headline?`<div class="muted">${esc(c.headline)}</div>`:''}<div class="acts"><select data-kst="${c.id}" aria-label="Status">${opts(SL).replace(`value="${c.status}"`,`value="${c.status}" selected`)}</select><button class="ghost sm" data-ed="${c.id}">Editar</button><button class="ghost sm" data-del="${c.id}">Excluir</button></div></div>`).join('')).join(''):'';
+  let st=[];try{st=JSON.parse(localStorage.getItem(ckKey())||'[]')}catch(e){}
+  $('#k-chk').innerHTML=CK.map((x,i)=>`<label class="ck"><input type="checkbox" data-ck="${i}" ${st[i]?'checked':''}> ${x}</label>`).join('');
+}
+function mkPrompt(n){
+  const c=cli.find(x=>x.id===cur);if(!c)return say('Selecione um cliente.',1);
+  const mes=$('#k-mes').value?new Date($('#k-mes').value+'-01T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'}):'[MÊS]';
+  const p3=`Crie uma distribuição estratégica de conteúdo para o mês de ${mes}, com base no meu contexto e na minha frequência.\n\n${ctx()}\n\nDESEMPENHO REAL DESTE CLIENTE (dados do meu app)\n${desemp()}\n\nO que preciso:\n1. Pilares por semana: o pilar principal de cada semana, sem repetir em semanas seguidas.\n2. Formatos por semana: distribua carrossel, Reel e estático, nunca só um formato na semana inteira.\n3. Temas por semana: temas práticos e relevantes dentro de cada pilar, priorizando o que deu resultado e evitando o que não funcionou.\n\nFormato de saída, por semana: Pilar; Formato 1 - tema; Formato 2 - tema; Formato 3 - tema.\n\nNo final, entregue uma tabela com uma linha por post, neste formato exato, para eu importar no meu app (data AAAA-MM-DD; formato: reel, carrossel ou estatico):\nAAAA-MM-DD | formato | pilar | tema`;
+  const p4='Perfeito! Agora crie todos os conteúdos do mês. Para cada post entregue: headline (uma frase que prende), conteúdo (o corpo do post), CTA (chamada para ação) e emojis estratégicos.\n\nRegras por formato:\n- Carrossel: 8 cards, 1 ponto por card, estrutura clara.\n- Reel (script): 30 a 60 segundos, com direções de câmera e transições.\n- Post estático: headline, parágrafo do conteúdo e CTA clara.\n\nEntregue tudo pronto para copiar e colar, organizado por semana e post.';
+  $('#k-out').value=n===3?p3:p4;$('#k-out').classList.remove('hide');$('#k-copy').classList.remove('hide');
+}
+async function importar(){
+  if(!cur)return say('Selecione um cliente.',1);
+  const rows=[],bad=[];
+  $('#k-imp').value.split('\n').forEach(l=>{const p=l.split('|').map(x=>x.trim());if(p.length<3)return;
+    const d=p[0].match(/\d{4}-\d{2}-\d{2}/)?.[0],f=NF[p[1].toLowerCase()];
+    if(!d||!f){if(/\d/.test(p[0]))bad.push(l);return}
+    rows.push({cliente_id:cur,data:d,formato:f,pilar:p[2],tema:p[3]||'',status:'planejado'})});
+  if(!rows.length)return say('Não encontrei linhas válidas. Use: AAAA-MM-DD | formato | pilar | tema',1);
+  const {error}=await db.from('conteudos').insert(rows);
+  if(error)return say('Erro ao importar: '+esc(error.message),1);
+  $('#k-imp').value='';$('#k-mes').value=rows[0].data.slice(0,7);
+  await loadAll();say(`${rows.length} post(s) importado(s).${bad.length?' '+bad.length+' linha(s) ignorada(s) por formato inválido.':''}`);
+}
+async function saveCli(){
+  const nome=$('#c-nome').value.trim();if(!nome)return say('Escreva o nome do cliente.',1);
+  if(await save('clientes',{nome,nicho:$('#c-nicho').value.trim(),notas:$('#c-notas').value.trim()})){['#c-nome','#c-nicho','#c-notas'].forEach(i=>$(i).value='');await loadAll();say('Cliente salvo.')}
 }
 
 /* ===== EVENTOS ===== */
 $('#l-go').onclick=login;$('#l-pass').onkeydown=e=>{if(e.key==='Enter')login()};$('#logout').onclick=()=>db.auth.signOut();
-$('#add').onclick=()=>$('#form').classList.toggle('hide');
-$('#save').onclick=saveProfile;$('#go').onclick=analyze;
-$('#plist').onclick=e=>{const u=e.target.dataset.del;if(u)delProfile(u)};
-$('#s-reel').onchange=$('#s-car').onchange=compare;
-document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  days=+b.dataset.d;$('#dates').classList.toggle('on',days===0)});
-$('#theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--card').trim()==='#2a4670';d.dataset.theme=dark?'light':'dark';if(posts.length)render()};
+$$('#nav .chip').forEach(b=>b.onclick=()=>go(b.dataset.v));
+$('#sel').onchange=e=>{cur=e.target.value;try{localStorage.setItem('cur',cur)}catch(x){}renderAll()};
+$$('#per .chip').forEach(b=>b.onclick=()=>{$$('#per .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));days=+b.dataset.d;$('#dates').classList.toggle('on',days===0);painel()});
+$('#d1').onchange=$('#d2').onchange=painel;$('#s-tema').onchange=tcmp;
+$('#r-save').onclick=saveCon;$('#r-cancel').onclick=clearReg;$('#c-save').onclick=saveCli;
+$('#clist').onclick=e=>{const i=e.target.dataset.cdel;if(i)remove('clientes',i,'Excluir o cliente e todos os conteúdos dele?')};
+$('#k-mes').onchange=calRender;
+$('#k-add').onclick=()=>{clearReg();$('#r-data').value=($('#k-mes').value||'')+'-01';$('#r-st').value='planejado';go('reg')};
+$('#k-p3').onclick=()=>mkPrompt(3);$('#k-p4').onclick=()=>mkPrompt(4);$('#k-do').onclick=importar;
+const cp=id=>{$(id).select();navigator.clipboard?.writeText($(id).value).then(()=>say('Copiado. Cole no chat do Claude.'),()=>say('Selecione o texto e copie manualmente.'))};
+$('#k-copy').onclick=()=>cp('#k-out');$('#g-copy').onclick=()=>cp('#gbt');
+$('#g-go').onclick=gerar;$('#g-brief').onclick=briefing;$('#pf-save').onclick=pfSave;
+$('#app').addEventListener('click',async e=>{const d=e.target.dataset;
+  if(d.ed)editCon(d.ed);
+  if(d.del)remove('conteudos',d.del,'Excluir este conteúdo?');
+  if(d.bdel){const[k,i]=d.bdel.split('|');remove(k,i,'Excluir este item?')}
+  if(d.add){const k=d.add,tema=$('#'+k+'-t').value.trim();if(!tema)return say('Preencha o campo principal.',1);
+    const o={nicho:$('#'+k+'-n').value.trim(),tema,status:$('#'+k+'-s').value,nota:$('#'+k+'-o').value.trim()};if(BK[k].f)o.formula=$('#'+k+'-f').value;
+    if(await save(k,o)){$('#'+k+'-t').value='';$('#'+k+'-o').value='';await loadAll();say('Salvo.')}}
+  if(d.gsave!==undefined){const x=gen[+d.gsave];
+    if(x&&await save('headlines',{nicho:cli.find(c=>c.id===cur)?.nicho||'',tema:x.txt,status:'testar',formula:x.k,nota:'Tema: '+$('#g-tema').value.trim()})){await loadAll();say('Salvo no banco de headlines.')}}
+});
+$('#app').addEventListener('change',async e=>{const d=e.target.dataset;
+  if(d.bst){const[k,i]=d.bst.split('|');if(await save(k,{status:e.target.value},i))loadAll()}
+  if(d.fn)renderBank(d.fn);
+  if(d.kst&&await save('conteudos',{status:e.target.value},d.kst))loadAll();
+  if(d.ck!==undefined){let st=[];try{st=JSON.parse(localStorage.getItem(ckKey())||'[]')}catch(x){}st[+d.ck]=e.target.checked;try{localStorage.setItem(ckKey(),JSON.stringify(st))}catch(x){}}
+});
+$('#theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--card').trim()==='#2a4670';d.dataset.theme=dark?'light':'dark';if(view==='painel'&&!$('#app').classList.contains('hide'))painel()};
+Object.keys(BK).forEach(mkBank);pfBuild();clearReg();
 
 /* ===== PWA ===== */
 const icon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#223A5E"/><rect x="96" y="150" width="320" height="100" rx="50" fill="#6E9ECC"/><rect x="96" y="262" width="320" height="100" rx="50" fill="#F3F8FD"/></svg>');
-const man={name:'Métricas do Instagram',short_name:'Métricas IG',start_url:location.href.split('#')[0],display:'standalone',background_color:'#F3F8FD',theme_color:'#223A5E',icons:[{src:icon,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
+const man={name:'Estratégia de conteúdo',short_name:'Estratégia',start_url:location.href.split('#')[0],display:'standalone',background_color:'#F3F8FD',theme_color:'#223A5E',icons:[{src:icon,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
 const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/manifest+json'}));document.head.appendChild(ml);
 const ai=document.createElement('link');ai.rel='apple-touch-icon';ai.href=icon;document.head.appendChild(ai);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-
 init();
 </script>
 </body>
