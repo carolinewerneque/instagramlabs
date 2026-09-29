@@ -21,7 +21,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;min-height:100vh;background:var(--bg);background-attachment:fixed;color:var(--txt);font:400 15px/1.55 Lekton,ui-monospace,monospace}
 h1,h2,h3{font-family:Poppins,system-ui,sans-serif;margin:0;line-height:1.2}
 h1{font-size:22px;font-weight:700}h2{font-size:18px;font-weight:600;margin-bottom:12px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+main{--pad:clamp(16px,3.5vw,56px);max-width:none;margin:0;padding:16px var(--pad) 48px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .panel{background:var(--card);border-radius:28px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
 label{display:block;font-weight:700;margin-bottom:6px;font-size:13px;color:var(--mut)}
@@ -37,7 +37,7 @@ button.sm{padding:6px 14px;min-height:36px;font-size:13px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{background:transparent;color:var(--txt);border:1.5px solid var(--line);padding:8px 16px;min-height:40px}
 .chip[aria-pressed=true]{background:var(--c3);border-color:var(--c3);color:#fff}
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin:0 -16px 18px;padding:12px 16px 10px;background:var(--c1);color:var(--c7);box-shadow:var(--shadow);border-radius:0 0 24px 24px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin:0 calc(-1*var(--pad)) 18px;padding:12px var(--pad) 10px;background:var(--c1);color:var(--c7);box-shadow:var(--shadow);border-radius:0 0 24px 24px}
 .top label{color:var(--c5)}.top select{color:#F3F8FD;border-color:var(--c3)}
 #nav{flex-wrap:nowrap;overflow-x:auto;margin-top:10px;padding-bottom:4px;scrollbar-width:none}
 #nav .chip{white-space:nowrap;color:#F3F8FD;border-color:var(--c3)}
@@ -62,6 +62,13 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--c3)}
 .v0{border:1.5px solid var(--line)}.v1{background:#2f7d5b;color:#fff}.v2{background:var(--c6);color:#223A5E}.v3{background:#a94a35;color:#fff}
 .acts{display:flex;gap:8px;margin-top:6px;align-items:center}.acts select{width:auto}
 .hide{display:none}
+@media(min-width:1100px){
+#app>section:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+#app>section:not(.hide)>.panel{margin-bottom:0}
+#app>section:not(.hide)>.kpis{grid-column:1/-1;margin-bottom:0}
+#v-painel>.panel:first-child,#v-reg>.panel,#v-clientes>.panel:last-child{grid-column:1/-1}
+}
+@media(min-width:1500px){.kpis{grid-template-columns:repeat(6,1fr)}}
 </style>
 </head>
 <body>
@@ -219,7 +226,9 @@ try{db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
 const say=(t,err)=>{$('#msg').innerHTML=t?`<div class="msg ${err?'err':''}" role="status">${t}</div>`:''};
 
 /* ===== LOGIN ===== */
+let logged=null;
 function show(on){
+  if(on===logged)return;logged=on;
   $('#login').classList.toggle('hide',on);$('#app').classList.toggle('hide',!on);$('#logout').classList.toggle('hide',!on);
   if(on)loadAll();else{cli=[];con=[];bk={temas:[],estrategias:[],headlines:[]}}
 }
@@ -376,11 +385,18 @@ function renderBank(k){
 
 /* ===== PERFIL DO CLIENTE (passos 1 e 2) ===== */
 function pfBuild(){$('#pf').innerHTML=PF.map(([k,l,t])=>`<div class="row"><div><label for="pf-${k}">${l}</label>${t?`<textarea id="pf-${k}" rows="2"></textarea>`:`<input id="pf-${k}">`}</div></div>`).join('')}
-function pfFill(){const c=cli.find(x=>x.id===cur),p=c?.perfil||{};PF.forEach(([k])=>$('#pf-'+k).value=p[k]||'');$('#pf-t').textContent=c?'Perfil de '+c.nome:'Perfil do cliente'}
+const pfDk=()=>'pfdraft|'+(cur||'new');
+const pfGet=()=>{try{return localStorage.getItem(pfDk())}catch(e){return null}};
+const pfTitle=()=>{const c=cli.find(x=>x.id===cur);return (c?'Perfil de '+c.nome:'Perfil do cliente')+(pfGet()?' (alterações não salvas)':'')};
+function pfFill(){
+  let p=cli.find(x=>x.id===cur)?.perfil||{};
+  try{const d=pfGet();if(d)p={...p,...JSON.parse(d)}}catch(e){}
+  PF.forEach(([k])=>$('#pf-'+k).value=p[k]||'');$('#pf-t').textContent=pfTitle();
+}
 async function pfSave(){
-  if(!cur)return say('Selecione um cliente.',1);
+  if(!cur)return say('Salve o cliente primeiro. O que você digitou no perfil fica guardado e será salvo junto.',1);
   const o={};PF.forEach(([k])=>o[k]=$('#pf-'+k).value.trim());
-  if(await save('clientes',{perfil:o},cur)){await loadAll();say('Perfil salvo.')}
+  if(await save('clientes',{perfil:o},cur)){try{localStorage.removeItem(pfDk())}catch(e){}await loadAll();say('Perfil salvo.')}
 }
 
 /* ===== GERADOR DE HEADLINES ===== */
@@ -454,7 +470,12 @@ async function importar(){
 }
 async function saveCli(){
   const nome=$('#c-nome').value.trim();if(!nome)return say('Escreva o nome do cliente.',1);
-  if(await save('clientes',{nome,nicho:$('#c-nicho').value.trim(),notas:$('#c-notas').value.trim()})){['#c-nome','#c-nicho','#c-notas'].forEach(i=>$(i).value='');await loadAll();say('Cliente salvo.')}
+  const {data,error}=await db.from('clientes').insert({nome,nicho:$('#c-nicho').value.trim(),notas:$('#c-notas').value.trim()}).select().single();
+  if(error)return say('Erro ao salvar: '+esc(error.message),1);
+  ['#c-nome','#c-nicho','#c-notas'].forEach(i=>$(i).value='');cur=data.id;try{localStorage.setItem('cur',cur)}catch(e){}
+  let d=null,extra='';try{d=localStorage.getItem('pfdraft|new')}catch(e){}
+  if(d){const r2=await db.from('clientes').update({perfil:JSON.parse(d)}).eq('id',data.id);if(!r2.error){try{localStorage.removeItem('pfdraft|new')}catch(e){}extra=' O perfil que você já tinha preenchido também foi salvo.'}}
+  await loadAll();say('Cliente salvo.'+extra);
 }
 
 /* ===== EVENTOS ===== */
@@ -487,6 +508,7 @@ $('#app').addEventListener('change',async e=>{const d=e.target.dataset;
   if(d.kst&&await save('conteudos',{status:e.target.value},d.kst))loadAll();
   if(d.ck!==undefined){let st=[];try{st=JSON.parse(localStorage.getItem(ckKey())||'[]')}catch(x){}st[+d.ck]=e.target.checked;try{localStorage.setItem(ckKey(),JSON.stringify(st))}catch(x){}}
 });
+$('#pf').addEventListener('input',()=>{const o={};PF.forEach(([k])=>o[k]=$('#pf-'+k).value);try{localStorage.setItem(pfDk(),JSON.stringify(o))}catch(e){}$('#pf-t').textContent=pfTitle()});
 $('#theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--card').trim()==='#2a4670';d.dataset.theme=dark?'light':'dark';if(view==='painel'&&!$('#app').classList.contains('hide'))painel()};
 Object.keys(BK).forEach(mkBank);pfBuild();clearReg();
 
