@@ -103,6 +103,8 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--brown);box-shado
 .rp-next{background:#F3F0EC;border-radius:22px;padding:18px 20px}
 .rp-tb{width:100%;border-collapse:collapse;font-size:14px}.rp-tb th,.rp-tb td{text-align:left;padding:8px 10px;border-bottom:1px solid #E3DED7}
 #rpn{white-space:pre-wrap}
+.rp-champ{margin-top:18px;padding:14px 18px;border-radius:20px;background:#EBE7E3;border-left:6px solid #6A4B35}
+.tb{width:100%;border-collapse:collapse;font-size:14px}.tb th,.tb td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}.tb tr.er td{background:rgba(106,75,53,.16)}
 .rp-foot{margin-top:28px;font-size:12px;color:#5E6A70}
 .hide{display:none}
 @media(max-width:800px){.rp-2{grid-template-columns:1fr}.report{padding:20px}}
@@ -116,7 +118,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--brown);box-shado
 #app>section:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
 #app>section:not(.hide)>.panel{margin-bottom:0}
 #app>section:not(.hide)>.kpis{grid-column:1/-1;margin-bottom:0}
-#v-painel>.panel:first-child,#v-reg>.panel,#v-clientes>.panel:last-child,#v-rel>.panel,#v-rel>.report{grid-column:1/-1}
+#v-painel>.panel:first-child,#v-reg>.panel,#v-imp>.panel,#v-clientes>.panel:last-child,#v-rel>.panel,#v-rel>.report{grid-column:1/-1}
 }
 @media(min-width:1700px){.kpis{grid-template-columns:repeat(6,1fr)}}
 @media print{
@@ -176,6 +178,8 @@ body{background:#fff}body::before{display:none}
     <div id="tcmp" class="hide"><div class="chart" style="margin-top:16px"><canvas id="c2"></canvas></div><ul class="tips" id="ttips"></ul></div>
   </div>
   <div class="panel"><h2>Conteúdos do período</h2><div id="lista"></div></div>
+  <div class="panel"><h2>Como o app calcula</h2><details><summary>Ver as fórmulas das porcentagens</summary>
+    <ul class="rp-list" style="margin-top:10px"><li>Engajamento de um conteúdo = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance × 100.</li><li>Engajamento médio do período = média dos engajamentos dos conteúdos (cada conteúdo pesa igual).</li><li>Mediana do cliente = valor do meio entre os engajamentos de todos os conteúdos medidos dele. "Funcionando" é 20% acima da mediana e "Abaixo da média" é 20% abaixo.</li><li>Salvamentos por 1.000 = salvamentos ÷ alcance × 1.000.</li><li>O alcance deve ser o de contas alcançadas. Se você usar visualizações, as porcentagens mudam.</li></ul></details></div>
 </section>
 
 <section id="v-reg" class="hide">
@@ -190,7 +194,7 @@ body{background:#fff}body::before{display:none}
     <div class="row"><div><label for="r-corpo">Conteúdo (corpo do post, roteiro ou cards)</label><textarea id="r-corpo" rows="4"></textarea></div></div>
     <div class="row"><div><label for="r-hip">Hipótese (o que espero que aconteça e por quê)</label><textarea id="r-hip" rows="2"></textarea></div></div>
     <div class="row">
-      <div><label for="r-alc">Alcance</label><input type="number" inputmode="numeric" min="0" id="r-alc"></div>
+      <div><label for="r-alc">Alcance (contas alcançadas)</label><input type="number" inputmode="numeric" min="0" id="r-alc"></div>
       <div><label for="r-cur">Curtidas</label><input type="number" inputmode="numeric" min="0" id="r-cur"></div>
       <div><label for="r-com">Comentários</label><input type="number" inputmode="numeric" min="0" id="r-com"></div>
       <div><label for="r-sal">Salvamentos</label><input type="number" inputmode="numeric" min="0" id="r-sal"></div>
@@ -248,6 +252,18 @@ body{background:#fff}body::before{display:none}
   </div>
 </section>
 
+<section id="v-imp" class="hide">
+  <div class="panel"><h2>Importar métricas</h2>
+    <p class="muted" style="margin-top:0">Fluxo: envie os prints dos Insights ao Claude, receba a tabela e importe aqui. O app mostra uma prévia com as porcentagens antes de salvar.</p>
+    <div class="row"><button class="ghost" id="im-model">Baixar modelo (CSV)</button><button class="ghost" id="im-prompt">Copiar prompt para o Claude</button></div>
+    <label for="im-file">Arquivo CSV</label><input type="file" id="im-file" accept=".csv,.txt,text/csv">
+    <label for="im-txt" style="margin-top:12px">Ou cole a tabela aqui</label>
+    <textarea id="im-txt" rows="8" placeholder="data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado"></textarea>
+    <button class="big" id="im-prev">Conferir antes de importar</button>
+  </div>
+  <div class="panel hide" id="im-box"><h2 id="im-t">Prévia</h2><div id="im-tab" style="overflow-x:auto"></div><button class="big" id="im-go">Confirmar importação</button></div>
+</section>
+
 <section id="v-clientes" class="hide">
   <div class="panel"><h2>Novo cliente</h2>
     <div class="row">
@@ -303,7 +319,7 @@ function donut(key,canvas,labels,data,colors,light){
   charts[key]=new Chart($(canvas),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:light?'#fff':(isDark()?'#2B3338':'#FBFAF8'),borderWidth:4}]},options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right'}}}});
 }
 const IC=p=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const NAVS=[['painel','Painel','<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>'],['cal','Calendário','<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>'],['reg','Registrar','<path d="M12 5v14M5 12h14"/>'],['rel','Relatório','<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>'],['headlines','Headlines','<path d="M5 6h14M12 6v13M9 19h6"/>'],['estrategias','Estratégias','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'],['temas','Temas','<path d="M4 4h8l8 8-8 8-8-8z"/><circle cx="8.5" cy="8.5" r="1"/>'],['ger','Gerador','<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>'],['clientes','Clientes','<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M16 5a3.5 3.5 0 010 7M21 20c0-2.5-1.5-4.5-4-5.3"/>'],['conta','Minha conta','<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>']];
+const NAVS=[['painel','Painel','<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>'],['cal','Calendário','<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>'],['reg','Registrar','<path d="M12 5v14M5 12h14"/>'],['imp','Importar','<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'],['rel','Relatório','<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>'],['headlines','Headlines','<path d="M5 6h14M12 6v13M9 19h6"/>'],['estrategias','Estratégias','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'],['temas','Temas','<path d="M4 4h8l8 8-8 8-8-8z"/><circle cx="8.5" cy="8.5" r="1"/>'],['ger','Gerador','<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>'],['clientes','Clientes','<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M16 5a3.5 3.5 0 010 7M21 20c0-2.5-1.5-4.5-4-5.3"/>'],['conta','Minha conta','<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>']];
 function mkNav(){$('#nav').innerHTML=NAVS.map(([k,l,p],i)=>`<button class="chip" data-v="${k}" aria-pressed="${i===0}">${IC(p)}<span>${l}</span></button>`).join('')}
 let db=null,cli=[],con=[],bk={temas:[],estrategias:[],headlines:[]},gen=[],cur=null,days=30,view='painel',editId=null,charts={};
 try{cur=localStorage.getItem('cur')}catch(e){}
@@ -457,6 +473,98 @@ async function saveCon(){
   if(await save('conteudos',o,editId)){clearReg();view='painel';await loadAll();say('Conteúdo salvo.')}
 }
 
+/* ===== IMPORTAR MÉTRICAS (CSV) E APRENDER COM O DESEMPENHO ===== */
+const nz=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const IMH={data:'data',formato:'formato',tipo:'formato',tema:'tema',assunto:'tema',headline:'headline',gancho:'headline',cta:'cta',alcance:'alcance','contas alcancadas':'alcance',curtidas:'curtidas',likes:'curtidas',comentarios:'comentarios',salvamentos:'salvamentos',salvos:'salvamentos',compartilhamentos:'compartilhamentos',envios:'compartilhamentos',aprendizado:'aprendizado',observacao:'aprendizado'};
+const IMF={...NF,foto:'estatico',post:'estatico',feed:'estatico',estatica:'estatico',video:'reel',static:'estatico'};
+let imRows=[];
+function csvRows(t){
+  t=t.replace(/^\uFEFF/,'').replace(/\r/g,'');const first=t.split('\n').find(l=>l.trim())||'';
+  const d=[';','\t','|',','].map(x=>[x,first.split(x).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[];let row=[],cell='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){cell+='"';i++}else q=false}else cell+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===d){row.push(cell);cell=''}
+    else if(ch==='\n'){row.push(cell);rows.push(row);row=[];cell=''}
+    else cell+=ch}
+  row.push(cell);rows.push(row);
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+function parseNum(v){
+  v=String(v??'').trim().toLowerCase();if(!v)return 0;
+  const m=v.match(/^([\d.,]+)\s*(mil|k)$/);
+  if(m)return Math.round(parseFloat(m[2]==='k'?m[1].replace(',','.'):m[1].replace(/\./g,'').replace(',','.'))*1000)||0;
+  return parseInt(v.replace(/\D/g,''))||0;
+}
+function parseDate(v){
+  v=v.trim();let m=v.match(/^(\d{4})-(\d{2})-(\d{2})/),d='';
+  if(m)d=m[0];else{m=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);if(m)d=`${m[3].length===2?'20'+m[3]:m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+  const t=d?new Date(d+'T12:00:00'):null;return t&&!isNaN(t)&&t.toISOString().slice(0,10)===d?d:'';
+}
+function imModel(){
+  const t='data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado\n2026-01-01;reel;EXEMPLO apague esta linha;Headline de exemplo;CTA de exemplo;1000;80;5;20;10;';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8'}));a.download='modelo-metricas.csv';a.click();
+}
+function imPromptTxt(){
+  const c=cli.find(x=>x.id===cur);
+  return `Vou enviar prints dos Insights do Instagram do cliente ${c?c.nome:'[NOME]'}${c&&c.nicho?' (nicho: '+c.nicho+')':''}. Para cada publicação, extraia os números e devolva uma tabela CSV com separador ponto e vírgula e esta primeira linha exata:\ndata;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado\n\nRegras:\n- data no formato AAAA-MM-DD; formato: reel, carrossel ou estatico.\n- alcance = contas alcançadas (não visualizações nem impressões). Se o print só mostrar visualizações, deixe o alcance vazio e me avise.\n- tema = assunto em poucas palavras; headline = a frase de abertura do conteúdo (a capa), se aparecer; cta = chamada para ação, se aparecer.\n- Se não conseguir ler um número com certeza, deixe vazio e liste a dúvida depois da tabela. Não invente valores.\n- Entregue a tabela em um bloco de código para eu copiar.\n\nDepois da tabela, diga em duas linhas qual publicação teve o melhor e qual teve o pior engajamento.`;
+}
+function imPreview(){
+  const c=cli.find(x=>x.id===cur);if(!c)return say('Selecione um cliente.',1);
+  const txt=$('#im-txt').value.trim();if(!txt)return say('Cole a tabela ou escolha um arquivo.',1);
+  const rows=csvRows(txt),H=rows[0].map(h=>IMH[nz(h)]||''),ix=k=>H.indexOf(k);
+  if(ix('data')<0||ix('formato')<0)return say('A primeira linha precisa ter os nomes das colunas (data, formato, alcance...). Baixe o modelo para ver o formato.',1);
+  const mine=con.filter(x=>x.cliente_id===cur);
+  imRows=rows.slice(1).map((r,i)=>{
+    const g=k=>ix(k)<0?'':(r[ix(k)]||'').trim();
+    const o={data:parseDate(g('data')),formato:IMF[nz(g('formato'))]||'',tema:g('tema'),headline:g('headline'),cta:g('cta'),alcance:parseNum(g('alcance')),curtidas:parseNum(g('curtidas')),comentarios:parseNum(g('comentarios')),salvamentos:parseNum(g('salvamentos')),compartilhamentos:parseNum(g('compartilhamentos')),aprendizado:g('aprendizado')};
+    const err=[],warn=[];if(!o.data)err.push('data inválida');if(!o.formato)err.push('formato não reconhecido');
+    let match=null;
+    if(!err.length){
+      const same=mine.filter(x=>x.data===o.data&&x.formato===o.formato);
+      match=same.find(x=>(x.tema||'').trim().toLowerCase()===o.tema.toLowerCase())||(same.length===1&&(same[0].status!=='publicado'||!o.tema)?same[0]:null);
+    }
+    const e=eng(o);
+    if(!o.alcance)warn.push('sem alcance');
+    if(o.alcance&&e>100)warn.push('engajamento acima de 100%: confira o alcance');
+    return {o,err,warn,match,e,n:i+2};
+  });
+  const okn=imRows.filter(r=>!r.err.length).length;
+  $('#im-box').classList.remove('hide');$('#im-t').textContent='Prévia: '+c.nome;
+  $('#im-tab').innerHTML=`<p class="muted">${okn} linha(s) válida(s) de ${imRows.length}. Confira principalmente a coluna Engajamento: ela deve fazer sentido para cada conteúdo.</p><table class="tb"><thead><tr><th>Linha</th><th>Ação</th><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Interações</th><th>Engajamento</th><th>Avisos</th></tr></thead><tbody>${imRows.map(r=>{const o=r.o,it=o.curtidas+o.comentarios+o.salvamentos+o.compartilhamentos;return `<tr class="${r.err.length?'er':''}"><td>${r.n}</td><td>${r.err.length?'Erro':r.match?'Atualiza':'Novo'}</td><td>${esc(o.data||'—')}</td><td>${esc(FM[o.formato]||'—')}</td><td>${esc(o.tema)}</td><td>${nf(o.alcance)}</td><td>${nf(it)}</td><td>${o.alcance?pc(r.e):'—'}</td><td>${esc([...r.err,...r.warn].join('; '))}</td></tr>`}).join('')}</tbody></table>`;
+  $('#im-go').disabled=!okn;
+}
+async function imGo(){
+  const ok=imRows.filter(r=>!r.err.length);if(!ok.length)return;
+  $('#im-go').disabled=true;
+  const ins=ok.filter(r=>!r.match).map(r=>({cliente_id:cur,...r.o,status:'publicado'})),ups=ok.filter(r=>r.match);let bad=0;
+  if(ins.length){const {error}=await db.from('conteudos').insert(ins);if(error){say('Erro ao importar: '+esc(error.message),1);$('#im-go').disabled=false;return}}
+  for(const r of ups){
+    const o=r.o,up={status:'publicado',alcance:o.alcance,curtidas:o.curtidas,comentarios:o.comentarios,salvamentos:o.salvamentos,compartilhamentos:o.compartilhamentos};
+    ['tema','headline','cta','aprendizado'].forEach(k=>{if(o[k])up[k]=o[k]});
+    const {error}=await db.from('conteudos').update(up).eq('id',r.match.id);if(error)bad++;
+  }
+  $('#im-go').disabled=false;$('#im-box').classList.add('hide');$('#im-txt').value='';
+  await loadAll();say(`${ins.length} conteúdo(s) novo(s) e ${ups.length-bad} atualizado(s).${bad?' '+bad+' falharam.':''}`);
+}
+const guessF=t=>{t=t.toLowerCase().trim();return /^\d/.test(t)?'lista':/mito/.test(t)?'mito':/\?$/.test(t)?'pergunta':/erro/.test(t)?'erro':/^(pare|nunca|evite)/.test(t)?'alerta':/^como /.test(t)?'passos':/antes e depois/.test(t)?'antes':/ningu[eé]m|segredo|verdade/.test(t)?'curiosidade':'livre'};
+async function hlSync(){
+  const c=cli.find(x=>x.id===cur);if(!c)return say('Selecione um cliente.',1);
+  const all=con.filter(x=>x.cliente_id===cur&&pub(x)&&x.alcance>0);
+  if(all.length<3)return say('São necessários pelo menos 3 conteúdos com métricas para saber o que funciona.',1);
+  const base=med(all.map(eng)),have=new Set(bk.headlines.map(h=>h.tema.trim().toLowerCase())),rows=[];
+  all.filter(x=>x.headline&&x.headline.trim()).forEach(x=>{
+    const k=x.headline.trim().toLowerCase();if(have.has(k))return;
+    const e=eng(x),st=e>=base*1.2?'funciona':e<=base*.8?'nao':null;if(!st)return;
+    have.add(k);rows.push({nicho:c.nicho||'',tema:x.headline.trim(),status:st,formula:guessF(x.headline),nota:`${c.nome}: ${FM[x.formato]||x.formato}, ${pc(e)} de engajamento (mediana do cliente: ${pc(base)}), ${x.data.slice(0,7)}. Fórmula estimada pelo app.`});
+  });
+  if(!rows.length)return say('Nenhuma headline nova para classificar: as que têm métricas já estão no banco ou ficaram dentro da média.');
+  const {error}=await db.from('headlines').insert(rows);
+  if(error)return say('Erro ao salvar: '+esc(error.message),1);
+  await loadAll();say(`${rows.filter(r=>r.status==='funciona').length} headline(s) que funcionaram e ${rows.filter(r=>r.status==='nao').length} que não funcionaram foram adicionadas ao banco.`);
+}
+
 /* ===== CONTA E SENHA ===== */
 async function trocarSenha(){
   const a=$('#ct-p1').value,b=$('#ct-p2').value;
@@ -527,13 +635,20 @@ function relRender(){
   const kp=[['rk1',L.length,'Publicações',''],['rk2',nf(a.alc),'Alcance total',dtx(da)],['rk3',pc(a.eng),'Engajamento médio',dtx(de)],['rk4',nf(a.lk+a.com+a.sal+a.cmp),'Interações',''],['rk5',nf(a.sal),'Salvamentos',''],['rk6',nf(a.cmp),'Compartilhamentos','']];
   const rows=top.slice(0,3).map(x=>{const[v,cl]=cat(x);return `<tr><td>${fd(x.data)}</td><td>${esc(FN(x.formato))}</td><td>${esc(nm(x))}</td><td>${nf(x.alcance)}</td><td>${pc(eng(x))}</td><td><span class="badge ${cl}">${v}</span></td></tr>`}).join('');
   const li=l=>l.map(x=>`<li>${esc(x)}</li>`).join('');
+  const champ=fm.length>1?`<div class="rp-champ"><b>Formato com melhor desempenho no mês:</b> ${esc(FN(fm[0].f))} (${pc(fm[0].e)} de engajamento médio). Menor desempenho: ${esc(FN(fm.at(-1).f))} (${pc(fm.at(-1).e)}).</div>`:'';
+  const gw=top.filter(x=>x.headline).slice(0,3),gl=[...top].reverse().filter(x=>x.headline&&!gw.includes(x)).slice(0,2);
+  const gl2=l=>l.map(x=>`"${x.headline}" (${FN(x.formato)}, ${pc(eng(x))})`);
+  const ganchos=gw.length?`<div class="rp-2 rp-sec"><div><h3>Ganchos que mais atraíram</h3><ul class="rp-list">${li(gl2(gw))}</ul></div><div><h3>Ganchos que atraíram menos</h3><ul class="rp-list">${gl.length?li(gl2(gl)):'<li>Sem outros ganchos registrados no mês.</li>'}</ul></div></div>`:'';
+  const gtxt=gw.length?'\n\nGanchos que mais atraíram:\n'+gl2(gw).map(x=>'- '+x).join('\n')+(gl.length?'\n\nGanchos que atraíram menos:\n'+gl2(gl).map(x=>'- '+x).join('\n'):''):'';
   box.innerHTML=head+`
   <div class="rp-kpis">${kp.map(k=>`<div class="rp-k ${k[0]}"><b>${k[1]}</b><span>${k[2]}</span>${k[3]}</div>`).join('')}</div>
+  ${champ}
   <div class="rp-sec"><h3>Engajamento por publicação</h3><div class="rp-ch"><canvas id="c5"></canvas></div>
     <div class="leg"><span><i style="background:#4F6472"></i>Acima do habitual</span><span><i style="background:#AD9C8A"></i>Dentro do habitual</span><span><i style="background:#6A4B35"></i>Abaixo do habitual</span><span><i style="background:#C9CFCB"></i>Sem histórico</span></div></div>
   <div class="rp-2 rp-sec"><div><h3>Engajamento médio por formato</h3><div class="rp-ch"><canvas id="c6"></canvas></div></div><div><h3>Mix de formatos</h3><div class="rp-ch"><canvas id="c7"></canvas></div></div></div>
   <div class="rp-sec"><h3>Conteúdos de destaque</h3><table class="rp-tb"><thead><tr><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Engajamento</th><th>Avaliação</th></tr></thead><tbody>${rows}</tbody></table></div>
   <div class="rp-2 rp-sec"><div><h3>O que funcionou</h3><ul class="rp-list">${li(hi)}</ul></div><div><h3>Pontos de atenção</h3><ul class="rp-list">${li(at)}</ul></div></div>
+  ${ganchos}
   <div class="rp-sec rp-next"><h3>Sugestão para o próximo mês</h3><ul class="rp-list">${li(nx)}</ul></div>
   <div class="rp-sec" id="rpn-sec"><h3>Comentário do estrategista</h3><div id="rpn"></div></div>
   <p class="rp-foot">Engajamento = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance. Números informados a partir dos Insights do Instagram. Gerado em ${new Date().toLocaleDateString('pt-BR')}.</p>`;
@@ -544,7 +659,7 @@ function relRender(){
     options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.08)'}}}}});
   const fg=grp(M,x=>x.formato),fk=Object.keys(fg);
   donut('r3','#c7',fk.map(FN),fk.map(f=>fg[f].length),fk.map((f,i)=>FC[f]||PAL[i%PAL.length]),true);
-  rpText=`Relatório de ${mesNome(m)} — ${c.nome}\nPublicações: ${L.length} | Alcance total: ${nf(a.alc)} | Engajamento médio: ${pc(a.eng)} | Salvamentos: ${nf(a.sal)} | Compartilhamentos: ${nf(a.cmp)}\n\nO que funcionou:\n${hi.map(x=>'- '+x).join('\n')}\n\nPontos de atenção:\n${at.map(x=>'- '+x).join('\n')}\n\nSugestão para o próximo mês:\n${nx.map(x=>'- '+x).join('\n')}`;
+  rpText=`Relatório de ${mesNome(m)} — ${c.nome}\nPublicações: ${L.length} | Alcance total: ${nf(a.alc)} | Engajamento médio: ${pc(a.eng)} | Salvamentos: ${nf(a.sal)} | Compartilhamentos: ${nf(a.cmp)}\n\nO que funcionou:\n${hi.map(x=>'- '+x).join('\n')}\n\nPontos de atenção:\n${at.map(x=>'- '+x).join('\n')}${gtxt}\n\nSugestão para o próximo mês:\n${nx.map(x=>'- '+x).join('\n')}`;
   rpNote();
 }
 
@@ -688,6 +803,7 @@ const cp=id=>{$(id).select();navigator.clipboard?.writeText($(id).value).then(()
 $('#k-copy').onclick=()=>cp('#k-out');$('#g-copy').onclick=()=>cp('#gbt');
 $('#g-go').onclick=gerar;$('#g-brief').onclick=briefing;$('#pf-save').onclick=pfSave;
 $('#app').addEventListener('click',async e=>{const d=e.target.dataset;
+  if(d.hl!==undefined)hlSync();
   if(d.cpc){const c=con.find(x=>x.id===d.cpc);if(c)flash(e.target,await copyTxt(conTxt(c)))}
   if(d.cpb){const[k,i]=d.cpb.split('|'),t=bk[k].find(x=>x.id===i);if(t)flash(e.target,await copyTxt(t.tema+(t.nota?'\n\n'+t.nota:'')))}
   if(d.cpg!==undefined){const x=gen[+d.cpg];if(x)flash(e.target,await copyTxt(x.txt))}
@@ -707,6 +823,9 @@ $('#app').addEventListener('change',async e=>{const d=e.target.dataset;
   if(d.ck!==undefined){let st=[];try{st=JSON.parse(localStorage.getItem(ckKey())||'[]')}catch(x){}st[+d.ck]=e.target.checked;try{localStorage.setItem(ckKey(),JSON.stringify(st))}catch(x){}}
 });
 $('#pf').addEventListener('input',()=>{const o={};PF.forEach(([k])=>o[k]=$('#pf-'+k).value);try{localStorage.setItem(pfDk(),JSON.stringify(o))}catch(e){}$('#pf-t').textContent=pfTitle()});
+$('#im-model').onclick=imModel;$('#im-prev').onclick=imPreview;$('#im-go').onclick=imGo;
+$('#im-prompt').onclick=async e=>flash(e.target,await copyTxt(imPromptTxt()));
+$('#im-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{$('#im-txt').value=fr.result;imPreview()};fr.readAsText(f,'utf-8');e.target.value=''};
 $('#menu').onclick=()=>{const o=$('#side').classList.toggle('open');$('#scrim').classList.toggle('hide',!o);$('#menu').setAttribute('aria-expanded',String(o))};
 $('#scrim').onclick=closeMenu;
 $('#ct-go').onclick=trocarSenha;$('#l-forgot').onclick=esqueci;
@@ -717,7 +836,9 @@ $('#rp-nota').oninput=()=>{try{localStorage.setItem(rpKey(),$('#rp-nota').value)
 $('#rp-print').onclick=()=>{const t=document.title;document.title='Relatório '+(cli.find(x=>x.id===cur)?.nome||'')+' '+($('#rp-mes').value||'');window.addEventListener('afterprint',()=>{document.title=t},{once:true});window.print()};
 $('#rp-copy').onclick=async e=>{const n=$('#rp-nota').value.trim();flash(e.target,await copyTxt(rpText+(n?'\n\nComentário do estrategista:\n'+n:'')))};
 $('#theme').onclick=()=>{const d=document.documentElement,dark=isDark();d.dataset.theme=dark?'light':'dark';if(!$('#app').classList.contains('hide')){if(view==='painel')painel();if(view==='cal')calRender();if(view==='rel')relRender()}};
-Object.keys(BK).forEach(mkBank);pfBuild();clearReg();
+Object.keys(BK).forEach(mkBank);
+(()=>{const p=document.createElement('div');p.className='panel';p.innerHTML='<h2>Aprender com o desempenho</h2><p class="muted" style="margin-top:0">Lê os conteúdos do cliente selecionado que têm headline e métricas. As que ficaram 20% acima da mediana entram como "Funcionou" e as 20% abaixo como "Não funcionou". A fórmula é estimada pelo app.</p><button class="big" data-hl="1">Atualizar banco com o desempenho</button>';$('#v-headlines').appendChild(p)})();
+pfBuild();clearReg();
 
 /* ===== PWA ===== */
 const icon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#4F6472"/><rect x="96" y="150" width="320" height="100" rx="50" fill="#AD9C8A"/><rect x="96" y="262" width="320" height="100" rx="50" fill="#EBE7E3"/></svg>');
