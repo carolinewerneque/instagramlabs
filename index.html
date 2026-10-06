@@ -62,6 +62,7 @@ button.sm{padding:6px 14px;min-height:36px;font-size:13px}
 #nav .chip{display:flex;align-items:center;gap:12px;text-align:left;border-radius:14px;background:transparent;color:#F2EEE9;border:0;padding:10px 12px;min-height:44px;font-weight:500;box-shadow:none}
 #nav .chip:hover{background:rgba(255,255,255,.09)}
 #nav .chip[aria-pressed=true]{background:#EBE7E3;color:#33302C}
+.ver{margin-top:auto;padding:14px 6px 0;font-size:12px;color:#D9D2C9}
 #scrim{position:fixed;inset:0;background:rgba(20,27,30,.45);z-index:20}
 .dates{display:none;margin-top:12px}.dates.on{display:flex}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
@@ -70,6 +71,7 @@ button.sm{padding:6px 14px;min-height:36px;font-size:13px}
 .kpi::after{content:"";position:absolute;top:14px;right:16px;width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.35}
 .kpi b{font:700 24px Poppins,sans-serif;line-height:1.1}.kpi span{font-size:13px;opacity:.92}
 .k1{background:var(--deep);color:#fff}.k2{background:var(--blue);color:#1F2A30}.k3{background:var(--brown);color:#fff}
+.k7{background:var(--deep);color:#fff}.k8{background:var(--blue);color:#1F2A30}.k9{background:var(--brown);color:#fff}
 .k4{background:var(--taupe);color:#2A2520}.k5{background:var(--sage);color:#2A2520}.k6{background:var(--sand);color:#2A2520}
 .chart{position:relative;height:260px}
 .leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:13px}.leg i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
@@ -94,7 +96,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--brown);box-shado
 .rp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:20px}
 .rp-k{border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
 .rp-k b{font:700 24px Poppins,sans-serif}.rp-k small{opacity:.9}
-.rk1{background:#4F6472;color:#fff}.rk2{background:#7C929E;color:#1F2A30}.rk3{background:#6A4B35;color:#fff}.rk4{background:#AD9C8A;color:#2A2520}.rk5{background:#C9CFCB;color:#2A2520}.rk6{background:#EBE7E3;color:#2A2520}
+.rk1{background:#4F6472;color:#fff}.rk2{background:#7C929E;color:#1F2A30}.rk3{background:#6A4B35;color:#fff}.rk4{background:#AD9C8A;color:#2A2520}.rk5{background:#C9CFCB;color:#2A2520}.rk6{background:#EBE7E3;color:#2A2520}.rk7{background:#4F6472;color:#fff}.rk8{background:#7C929E;color:#1F2A30}
 .rp-sec{margin-top:28px;break-inside:avoid}
 .rp-sec h3{font-size:16px;margin-bottom:10px;color:#4F6472}
 .rp-ch{position:relative;height:240px}
@@ -154,6 +156,7 @@ body{background:#fff}body::before{display:none}
   <label for="sel">Cliente</label>
   <select id="sel"></select>
   <nav id="nav" aria-label="Seções"></nav>
+  <div class="ver">Versão 03/10: quantidades completas</div>
 </aside>
 <div id="scrim" class="hide"></div>
 
@@ -179,7 +182,7 @@ body{background:#fff}body::before{display:none}
   </div>
   <div class="panel"><h2>Conteúdos do período</h2><div id="lista"></div></div>
   <div class="panel"><h2>Como o app calcula</h2><details><summary>Ver as fórmulas das porcentagens</summary>
-    <ul class="rp-list" style="margin-top:10px"><li>Engajamento de um conteúdo = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance × 100.</li><li>Engajamento médio do período = média dos engajamentos dos conteúdos (cada conteúdo pesa igual).</li><li>Mediana do cliente = valor do meio entre os engajamentos de todos os conteúdos medidos dele. "Funcionando" é 20% acima da mediana e "Abaixo da média" é 20% abaixo.</li><li>Salvamentos por 1.000 = salvamentos ÷ alcance × 1.000.</li><li>O alcance deve ser o de contas alcançadas. Se você usar visualizações, as porcentagens mudam.</li></ul></details></div>
+    <ul class="rp-list" style="margin-top:10px"><li>Engajamento de um conteúdo = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance × 100.</li><li>Engajamento médio do período = média dos engajamentos dos conteúdos (cada conteúdo pesa igual).</li><li>Mediana do cliente = valor do meio entre os engajamentos de todos os conteúdos medidos dele. "Funcionando" é 20% acima da mediana e "Abaixo da média" é 20% abaixo.</li><li>Alcance total, salvamentos, compartilhamentos, interações, seguidores ganhos e reposts são somas dos conteúdos do período. Na comparação por tema, o gráfico mostra a média por conteúdo.</li><li>Reposts e seguidores ganhos são registrados à parte e não entram no cálculo do engajamento.</li><li>O alcance deve ser o de contas alcançadas. Se você usar visualizações, as porcentagens mudam.</li></ul></details></div>
 </section>
 
 <section id="v-reg" class="hide">
@@ -198,7 +201,9 @@ body{background:#fff}body::before{display:none}
       <div><label for="r-cur">Curtidas</label><input type="number" inputmode="numeric" min="0" id="r-cur"></div>
       <div><label for="r-com">Comentários</label><input type="number" inputmode="numeric" min="0" id="r-com"></div>
       <div><label for="r-sal">Salvamentos</label><input type="number" inputmode="numeric" min="0" id="r-sal"></div>
-      <div><label for="r-comp">Compartilhamentos</label><input type="number" inputmode="numeric" min="0" id="r-comp"></div>
+      <div><label for="r-comp">Compartilhamentos (aviãozinho)</label><input type="number" inputmode="numeric" min="0" id="r-comp"></div>
+      <div><label for="r-rep">Reposts (setas circulares)</label><input type="number" inputmode="numeric" min="0" id="r-rep"></div>
+      <div><label for="r-seg">Seguidores ganhos (Follows)</label><input type="number" inputmode="numeric" min="0" id="r-seg"></div>
     </div>
     <div class="row"><div><label for="r-apr">Aprendizado (o que os números mostram)</label><textarea id="r-apr" rows="2"></textarea></div></div>
     <button class="big" id="r-save">Salvar conteúdo</button>
@@ -258,7 +263,7 @@ body{background:#fff}body::before{display:none}
     <div class="row"><button class="ghost" id="im-model">Baixar modelo (CSV)</button><button class="ghost" id="im-prompt">Copiar prompt para o Claude</button></div>
     <label for="im-file">Arquivo CSV</label><input type="file" id="im-file" accept=".csv,.txt,text/csv">
     <label for="im-txt" style="margin-top:12px">Ou cole a tabela aqui</label>
-    <textarea id="im-txt" rows="8" placeholder="data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado"></textarea>
+    <textarea id="im-txt" rows="8" placeholder="data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;reposts;seguidores;aprendizado"></textarea>
     <button class="big" id="im-prev">Conferir antes de importar</button>
   </div>
   <div class="panel hide" id="im-box"><h2 id="im-t">Prévia</h2><div id="im-tab" style="overflow-x:auto"></div><button class="big" id="im-go">Confirmar importação</button></div>
@@ -399,8 +404,10 @@ function verdict(c,base,n){
 function painel(){
   const all=con.filter(c=>c.cliente_id===cur),L=all.filter(c=>inP(c.data)).sort((a,b)=>a.data<b.data?-1:1);
   const wr=all.filter(c=>c.alcance>0),base=med(wr.map(eng)),n=wr.length,M=L.filter(c=>c.alcance>0);
-  const k=[['k1',L.length,'Conteúdos'],['k2',nf(avg(M.map(c=>c.alcance))),'Alcance médio'],['k3',pc(avg(M.map(eng))),'Engajamento médio'],
-    ['k4',nf(avg(M.map(c=>k1(c,'salvamentos')))),'Salvamentos por 1.000'],['k5',nf(avg(M.map(c=>k1(c,'compartilhamentos')))),'Compart. por 1.000'],['k6',n>=3?pc(base):'—','Mediana do cliente']];
+  const SS=(a,key)=>a.reduce((t,c)=>t+(c[key]||0),0),inter=c=>c.curtidas+c.comentarios+c.salvamentos+c.compartilhamentos;
+  const k=[['k1',L.length,'Conteúdos'],['k2',nf(SS(M,'alcance')),'Alcance total'],['k3',pc(avg(M.map(eng))),'Engajamento médio'],
+    ['k4',nf(SS(M,'salvamentos')),'Salvamentos'],['k5',nf(SS(M,'compartilhamentos')),'Compartilhamentos'],['k6',n>=3?pc(base):'—','Mediana do cliente'],
+    ['k7',nf(SS(M,'seguidores')),'Seguidores ganhos'],['k8',nf(M.reduce((t,c)=>t+inter(c),0)),'Interações (total)'],['k9',nf(SS(M,'reposts')),'Reposts']];
   $('#kpis').innerHTML=k.map(x=>`<div class="kpi ${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
   const t=[];
   if(!cur)t.push('Cadastre um cliente na aba Clientes para começar.');
@@ -411,6 +418,8 @@ function painel(){
     const te=Object.entries(grp(M.filter(tk),tk)).map(([,v])=>[v[0].tema,avg(v.map(eng)),v.length]).sort((a,b)=>b[1]-a[1]);
     if(te.length)t.push(`Tema que mais engaja: "${esc(te[0][0])}" (${pc(te[0][1])}, ${te[0][2]} conteúdo${te[0][2]>1?'s':''}). Vale repetir com outro ângulo.`);
     if(te.length>1)t.push(`Tema mais fraco: "${esc(te.at(-1)[0])}" (${pc(te.at(-1)[1])}). Antes de descartar, teste outro gancho e outro formato.`);
+    const sv=Object.entries(grp(M.filter(c=>tk(c)&&c.seguidores>0),tk)).map(([,v])=>[v[0].tema,avg(v.map(c=>c.seguidores))]).sort((a,b)=>b[1]-a[1]);
+    if(sv.length)t.push(`Tema que mais trouxe seguidores: "${esc(sv[0][0])}" (média de ${nf(sv[0][1])} seguidores por conteúdo).`);
     if(n>=3)t.push(`${L.filter(c=>verdict(c,base,n)[1]==='v1').length} de ${L.length} conteúdos do período estão acima da mediana do próprio cliente.`);
     else t.push('Há menos de 3 conteúdos com alcance registrado, então os vereditos ainda não são confiáveis.');
     L.filter(c=>c.aprendizado).slice(-3).forEach(c=>t.push(`Aprendizado de ${fd(c.data)}: ${esc(c.aprendizado)}`));
@@ -426,7 +435,7 @@ function painel(){
   if(fk.length){$('#mixp').classList.remove('hide');donut('m','#c3',fk.map(f=>FM[f]||f),fk.map(f=>fg[f].length),fk.map((f,i)=>FC[f]||PAL[i%PAL.length]))}else{charts.m?.destroy();$('#mixp').classList.add('hide')}
   $('#lista').innerHTML=L.length?[...L].reverse().map(c=>{const[v,cl]=verdict(c,base,n);
     return `<div class="item"><div class="it-top"><b>${fd(c.data)}, ${FM[c.formato]||esc(c.formato)}</b><span class="badge ${cl}">${v}</span></div>
-    <div>${esc(c.tema||'Sem tema')}${c.alcance?`: engajamento ${pc(eng(c))}, alcance ${nf(c.alcance)}`:': sem métricas ainda'}</div>
+    <div>${esc(c.tema||'Sem tema')}${c.alcance?`: engajamento ${pc(eng(c))}, alcance ${nf(c.alcance)}${c.seguidores?', +'+nf(c.seguidores)+' seguidores':''}`:': sem métricas ainda'}</div>
     ${c.headline?`<div class="muted">Gancho: ${esc(c.headline)}</div>`:''}${txtBlock(c)}${c.hipotese?`<div class="muted">Hipótese: ${esc(c.hipotese)}</div>`:''}
     <div class="acts"><button class="ghost sm" data-cpc="${c.id}">Copiar</button><button class="ghost sm" data-ed="${c.id}">Editar</button><button class="ghost sm" data-del="${c.id}">Excluir</button></div></div>`}).join(''):'<p class="muted">Nada por aqui ainda.</p>';
   const ts=Object.entries(grp(wr.filter(tk),tk)).map(([k,v])=>[k,v[0].tema,avg(v.map(eng))]).sort((a,b)=>b[2]-a[2]),pv=$('#s-tema').value;
@@ -439,8 +448,8 @@ function tcmp(){
   $('#tcmp').classList.remove('hide');
   const g=grp(l,c=>c.formato),fs=Object.keys(g),ms=[['curtidas','Curtidas'],['comentarios','Comentários'],['salvamentos','Salvamentos'],['compartilhamentos','Compartilhamentos']];
   charts.b?.destroy();
-  charts.b=new Chart($('#c2'),{type:'bar',data:{labels:ms.map(m=>m[1]),datasets:fs.map((f,i)=>({label:FM[f]||f,data:ms.map(m=>+avg(g[f].map(c=>k1(c,m[0]))).toFixed(1)),backgroundColor:FC[f]||PAL[i%PAL.length],borderRadius:12}))},
-    options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Interações por 1.000 pessoas alcançadas'}},scales:{y:{beginAtZero:true,grid:{color:GRID()}}}}});
+  charts.b=new Chart($('#c2'),{type:'bar',data:{labels:ms.map(m=>m[1]),datasets:fs.map((f,i)=>({label:FM[f]||f,data:ms.map(m=>Math.round(avg(g[f].map(c=>c[m[0]]||0)))),backgroundColor:FC[f]||PAL[i%PAL.length],borderRadius:12}))},
+    options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Média por conteúdo (quantidade)'}},scales:{y:{beginAtZero:true,grid:{color:GRID()}}}}});
   const t=[],E=fs.map(f=>[f,avg(g[f].map(eng))]).sort((a,b)=>b[1]-a[1]);
   if(fs.length<2)t.push(`Este tema só foi publicado em ${FM[fs[0]]||fs[0]}. Publique em outro formato para comparar de verdade.`);
   else{
@@ -455,13 +464,13 @@ function tcmp(){
 
 /* ===== REGISTRAR ===== */
 function clearReg(){
-  editId=null;['#r-tema','#r-pil','#r-head','#r-cta','#r-corpo','#r-hip','#r-apr','#r-alc','#r-cur','#r-com','#r-sal','#r-comp'].forEach(i=>$(i).value='');$('#r-st').value='publicado';
+  editId=null;['#r-tema','#r-pil','#r-head','#r-cta','#r-corpo','#r-hip','#r-apr','#r-alc','#r-cur','#r-com','#r-sal','#r-comp','#r-rep','#r-seg'].forEach(i=>$(i).value='');$('#r-st').value='publicado';
   $('#r-data').value=new Date().toISOString().slice(0,10);$('#r-fmt').value='reel';
   $('#reg-t').textContent='Registrar conteúdo';$('#r-cancel').classList.add('hide');
 }
 function editCon(id){
   const c=con.find(x=>x.id===id);if(!c)return;editId=id;
-  const m={'#r-data':'data','#r-fmt':'formato','#r-tema':'tema','#r-head':'headline','#r-cta':'cta','#r-hip':'hipotese','#r-apr':'aprendizado','#r-alc':'alcance','#r-cur':'curtidas','#r-com':'comentarios','#r-sal':'salvamentos','#r-comp':'compartilhamentos','#r-st':'status','#r-pil':'pilar','#r-corpo':'corpo'};
+  const m={'#r-data':'data','#r-fmt':'formato','#r-tema':'tema','#r-head':'headline','#r-cta':'cta','#r-hip':'hipotese','#r-apr':'aprendizado','#r-alc':'alcance','#r-cur':'curtidas','#r-com':'comentarios','#r-sal':'salvamentos','#r-comp':'compartilhamentos','#r-rep':'reposts','#r-seg':'seguidores','#r-st':'status','#r-pil':'pilar','#r-corpo':'corpo'};
   Object.entries(m).forEach(([s,k])=>$(s).value=c[k]??'');
   $('#reg-t').textContent='Editar conteúdo';$('#r-cancel').classList.remove('hide');go('reg');
 }
@@ -469,13 +478,13 @@ async function saveCon(){
   if(!cur)return say('Cadastre e selecione um cliente primeiro.',1);
   if(!$('#r-data').value)return say('Escolha a data de publicação.',1);
   const o={cliente_id:cur,data:$('#r-data').value,formato:$('#r-fmt').value,tema:$('#r-tema').value.trim(),headline:$('#r-head').value.trim(),cta:$('#r-cta').value.trim(),
-    status:$('#r-st').value,pilar:$('#r-pil').value.trim(),corpo:$('#r-corpo').value.trim(),hipotese:$('#r-hip').value.trim(),aprendizado:$('#r-apr').value.trim(),alcance:N('#r-alc'),curtidas:N('#r-cur'),comentarios:N('#r-com'),salvamentos:N('#r-sal'),compartilhamentos:N('#r-comp')};
+    status:$('#r-st').value,pilar:$('#r-pil').value.trim(),corpo:$('#r-corpo').value.trim(),hipotese:$('#r-hip').value.trim(),aprendizado:$('#r-apr').value.trim(),alcance:N('#r-alc'),curtidas:N('#r-cur'),comentarios:N('#r-com'),salvamentos:N('#r-sal'),compartilhamentos:N('#r-comp'),reposts:N('#r-rep'),seguidores:N('#r-seg')};
   if(await save('conteudos',o,editId)){clearReg();view='painel';await loadAll();say('Conteúdo salvo.')}
 }
 
 /* ===== IMPORTAR MÉTRICAS (CSV) E APRENDER COM O DESEMPENHO ===== */
 const nz=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-const IMH={data:'data',formato:'formato',tipo:'formato',tema:'tema',assunto:'tema',headline:'headline',gancho:'headline',cta:'cta',alcance:'alcance','contas alcancadas':'alcance',curtidas:'curtidas',likes:'curtidas',comentarios:'comentarios',salvamentos:'salvamentos',salvos:'salvamentos',compartilhamentos:'compartilhamentos',envios:'compartilhamentos',aprendizado:'aprendizado',observacao:'aprendizado'};
+const IMH={data:'data',formato:'formato',tipo:'formato',tema:'tema',assunto:'tema',headline:'headline',gancho:'headline',cta:'cta',alcance:'alcance','contas alcancadas':'alcance',curtidas:'curtidas',likes:'curtidas',comentarios:'comentarios',salvamentos:'salvamentos',salvos:'salvamentos',compartilhamentos:'compartilhamentos',envios:'compartilhamentos',aprendizado:'aprendizado',observacao:'aprendizado',reposts:'reposts',repost:'reposts',republicacoes:'reposts',seguidores:'seguidores','seguidores ganhos':'seguidores','novos seguidores':'seguidores',follows:'seguidores'};
 const IMF={...NF,foto:'estatico',post:'estatico',feed:'estatico',estatica:'estatico',video:'reel',static:'estatico'};
 let imRows=[];
 function csvRows(t){
@@ -503,12 +512,12 @@ function parseDate(v){
   const t=d?new Date(d+'T12:00:00'):null;return t&&!isNaN(t)&&t.toISOString().slice(0,10)===d?d:'';
 }
 function imModel(){
-  const t='data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado\n2026-01-01;reel;EXEMPLO apague esta linha;Headline de exemplo;CTA de exemplo;1000;80;5;20;10;';
+  const t='data;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;reposts;seguidores;aprendizado\n2026-01-01;reel;EXEMPLO apague esta linha;Headline de exemplo;CTA de exemplo;1000;80;5;20;10;4;3;';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8'}));a.download='modelo-metricas.csv';a.click();
 }
 function imPromptTxt(){
   const c=cli.find(x=>x.id===cur);
-  return `Vou enviar prints dos Insights do Instagram do cliente ${c?c.nome:'[NOME]'}${c&&c.nicho?' (nicho: '+c.nicho+')':''}. Para cada publicação, extraia os números e devolva uma tabela CSV com separador ponto e vírgula e esta primeira linha exata:\ndata;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;aprendizado\n\nRegras:\n- data no formato AAAA-MM-DD; formato: reel, carrossel ou estatico.\n- alcance = contas alcançadas (não visualizações nem impressões). Se o print só mostrar visualizações, deixe o alcance vazio e me avise.\n- tema = assunto em poucas palavras; headline = a frase de abertura do conteúdo (a capa), se aparecer; cta = chamada para ação, se aparecer.\n- Se não conseguir ler um número com certeza, deixe vazio e liste a dúvida depois da tabela. Não invente valores.\n- Entregue a tabela em um bloco de código para eu copiar.\n\nDepois da tabela, diga em duas linhas qual publicação teve o melhor e qual teve o pior engajamento.`;
+  return `Vou enviar prints dos Insights do Instagram do cliente ${c?c.nome:'[NOME]'}${c&&c.nicho?' (nicho: '+c.nicho+')':''}. Para cada publicação, extraia os números e devolva uma tabela CSV com separador ponto e vírgula e esta primeira linha exata:\ndata;formato;tema;headline;cta;alcance;curtidas;comentarios;salvamentos;compartilhamentos;reposts;seguidores;aprendizado\n\nRegras:\n- data no formato AAAA-MM-DD; formato: reel, carrossel ou estatico.\n- alcance = contas alcançadas (não visualizações nem impressões). Se o print só mostrar visualizações, deixe o alcance vazio e me avise.\n- compartilhamentos = ícone do aviãozinho (enviar); reposts = ícone das setas circulares; seguidores = o campo Follows (seguidores ganhos pelo conteúdo).\n- tema = assunto em poucas palavras; headline = a frase de abertura do conteúdo (a capa), se aparecer; cta = chamada para ação, se aparecer.\n- Se não conseguir ler um número com certeza, deixe vazio e liste a dúvida depois da tabela. Não invente valores.\n- Entregue a tabela em um bloco de código para eu copiar.\n\nDepois da tabela, diga em duas linhas qual publicação teve o melhor e qual teve o pior engajamento.`;
 }
 function imPreview(){
   const c=cli.find(x=>x.id===cur);if(!c)return say('Selecione um cliente.',1);
@@ -518,7 +527,7 @@ function imPreview(){
   const mine=con.filter(x=>x.cliente_id===cur);
   imRows=rows.slice(1).map((r,i)=>{
     const g=k=>ix(k)<0?'':(r[ix(k)]||'').trim();
-    const o={data:parseDate(g('data')),formato:IMF[nz(g('formato'))]||'',tema:g('tema'),headline:g('headline'),cta:g('cta'),alcance:parseNum(g('alcance')),curtidas:parseNum(g('curtidas')),comentarios:parseNum(g('comentarios')),salvamentos:parseNum(g('salvamentos')),compartilhamentos:parseNum(g('compartilhamentos')),aprendizado:g('aprendizado')};
+    const o={data:parseDate(g('data')),formato:IMF[nz(g('formato'))]||'',tema:g('tema'),headline:g('headline'),cta:g('cta'),alcance:parseNum(g('alcance')),curtidas:parseNum(g('curtidas')),comentarios:parseNum(g('comentarios')),salvamentos:parseNum(g('salvamentos')),compartilhamentos:parseNum(g('compartilhamentos')),reposts:parseNum(g('reposts')),seguidores:parseNum(g('seguidores')),aprendizado:g('aprendizado')};
     const err=[],warn=[];if(!o.data)err.push('data inválida');if(!o.formato)err.push('formato não reconhecido');
     let match=null;
     if(!err.length){
@@ -532,7 +541,7 @@ function imPreview(){
   });
   const okn=imRows.filter(r=>!r.err.length).length;
   $('#im-box').classList.remove('hide');$('#im-t').textContent='Prévia: '+c.nome;
-  $('#im-tab').innerHTML=`<p class="muted">${okn} linha(s) válida(s) de ${imRows.length}. Confira principalmente a coluna Engajamento: ela deve fazer sentido para cada conteúdo.</p><table class="tb"><thead><tr><th>Linha</th><th>Ação</th><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Interações</th><th>Engajamento</th><th>Avisos</th></tr></thead><tbody>${imRows.map(r=>{const o=r.o,it=o.curtidas+o.comentarios+o.salvamentos+o.compartilhamentos;return `<tr class="${r.err.length?'er':''}"><td>${r.n}</td><td>${r.err.length?'Erro':r.match?'Atualiza':'Novo'}</td><td>${esc(o.data||'—')}</td><td>${esc(FM[o.formato]||'—')}</td><td>${esc(o.tema)}</td><td>${nf(o.alcance)}</td><td>${nf(it)}</td><td>${o.alcance?pc(r.e):'—'}</td><td>${esc([...r.err,...r.warn].join('; '))}</td></tr>`}).join('')}</tbody></table>`;
+  $('#im-tab').innerHTML=`<p class="muted">${okn} linha(s) válida(s) de ${imRows.length}. Confira principalmente a coluna Engajamento: ela deve fazer sentido para cada conteúdo.</p><table class="tb"><thead><tr><th>Linha</th><th>Ação</th><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Interações</th><th>Engajamento</th><th>Seguidores</th><th>Avisos</th></tr></thead><tbody>${imRows.map(r=>{const o=r.o,it=o.curtidas+o.comentarios+o.salvamentos+o.compartilhamentos;return `<tr class="${r.err.length?'er':''}"><td>${r.n}</td><td>${r.err.length?'Erro':r.match?'Atualiza':'Novo'}</td><td>${esc(o.data||'—')}</td><td>${esc(FM[o.formato]||'—')}</td><td>${esc(o.tema)}</td><td>${nf(o.alcance)}</td><td>${nf(it)}</td><td>${o.alcance?pc(r.e):'—'}</td><td>${o.seguidores?nf(o.seguidores):'—'}</td><td>${esc([...r.err,...r.warn].join('; '))}</td></tr>`}).join('')}</tbody></table>`;
   $('#im-go').disabled=!okn;
 }
 async function imGo(){
@@ -541,7 +550,7 @@ async function imGo(){
   const ins=ok.filter(r=>!r.match).map(r=>({cliente_id:cur,...r.o,status:'publicado'})),ups=ok.filter(r=>r.match);let bad=0;
   if(ins.length){const {error}=await db.from('conteudos').insert(ins);if(error){say('Erro ao importar: '+esc(error.message),1);$('#im-go').disabled=false;return}}
   for(const r of ups){
-    const o=r.o,up={status:'publicado',alcance:o.alcance,curtidas:o.curtidas,comentarios:o.comentarios,salvamentos:o.salvamentos,compartilhamentos:o.compartilhamentos};
+    const o=r.o,up={status:'publicado',alcance:o.alcance,curtidas:o.curtidas,comentarios:o.comentarios,salvamentos:o.salvamentos,compartilhamentos:o.compartilhamentos,reposts:o.reposts,seguidores:o.seguidores};
     ['tema','headline','cta','aprendizado'].forEach(k=>{if(o[k])up[k]=o[k]});
     const {error}=await db.from('conteudos').update(up).eq('id',r.match.id);if(error)bad++;
   }
@@ -591,7 +600,7 @@ const rpKey=()=>'rpn|'+cur+'|'+$('#rp-mes').value;
 let rpText='';
 function rpStats(m){
   const L=con.filter(c=>c.cliente_id===cur&&pub(c)&&c.data.startsWith(m)),M=L.filter(c=>c.alcance>0);
-  return {L,M,alc:S(M,'alcance'),lk:S(M,'curtidas'),com:S(M,'comentarios'),sal:S(M,'salvamentos'),cmp:S(M,'compartilhamentos'),eng:avg(M.map(eng))};
+  return {L,M,alc:S(M,'alcance'),lk:S(M,'curtidas'),com:S(M,'comentarios'),sal:S(M,'salvamentos'),cmp:S(M,'compartilhamentos'),rp:S(M,'reposts'),sg:S(M,'seguidores'),eng:avg(M.map(eng))};
 }
 function rpNote(){const t=$('#rp-nota').value.trim(),s=$('#rpn-sec');if(!s)return;s.style.display=t?'':'none';$('#rpn').textContent=t}
 function relRender(){
@@ -612,10 +621,13 @@ function relRender(){
   const te=Object.entries(grp(M.filter(tk),tk)).map(([,v])=>({t:v[0].tema,e:avg(v.map(eng))})).sort((x,y)=>y.e-x.e);
   const top=[...M].sort((x,y)=>eng(y)-eng(x)),best=top[0],worst=top.at(-1);
   const nm=x=>x.tema||x.headline||'sem tema',FN=f=>FM[f]||f,dl=(x,y)=>y>0?(x/y-1)*100:null,da=dl(a.alc,p.alc),de=dl(a.eng,p.eng);
+  const itc=x=>x.curtidas+x.comentarios+x.salvamentos+x.compartilhamentos;
   const hi=[],at=[],nx=[];
-  hi.push(`Melhor conteúdo do mês: "${nm(best)}" (${FN(best.formato)}), com ${pc(eng(best))} de engajamento e alcance de ${nf(best.alcance)} pessoas.`);
+  hi.push(`Melhor conteúdo do mês: "${nm(best)}" (${FN(best.formato)}), com ${nf(itc(best))} interações (${pc(eng(best))} de engajamento) e alcance de ${nf(best.alcance)} pessoas.`);
   if(fm.length>1)hi.push(`${FN(fm[0].f)} foi o formato que mais engajou (${pc(fm[0].e)}), contra ${pc(fm.at(-1).e)} de ${FN(fm.at(-1).f)}.`);
   if(a.sal+a.cmp>0)hi.push(`${nf(a.sal)} salvamentos e ${nf(a.cmp)} compartilhamentos: sinais de que as pessoas guardaram ou repassaram o conteúdo.`);
+  const bf=[...M].sort((x,y)=>(y.seguidores||0)-(x.seguidores||0))[0];
+  if(bf&&bf.seguidores>0)hi.push(`Conteúdo que mais trouxe seguidores: "${nm(bf)}" (${FN(bf.formato)}), com ${nf(bf.seguidores)} novos seguidores.`);
   if(da!==null)hi.push(`O alcance ${da>=0?'cresceu':'caiu'} ${Math.abs(da).toFixed(0)}% em relação a ${mesNome(shiftMes(m,-1))}.`);
   if(M.length>2&&worst!==best)at.push(`Menor engajamento do mês: "${nm(worst)}" (${FN(worst.formato)}), com ${pc(eng(worst))}. Vale revisar o gancho e a chamada para ação.`);
   if(de!==null&&de<0)at.push(`O engajamento médio ficou ${Math.abs(de).toFixed(0)}% abaixo do mês anterior.`);
@@ -632,8 +644,8 @@ function relRender(){
   nx.push(np?`Já há ${np} conteúdo(s) planejado(s) para ${mesNome(nmx)}.`:`Ainda não há conteúdos planejados para ${mesNome(nmx)}. Sugerimos fechar o calendário antes do início do mês.`);
   nx.push('Com poucos conteúdos por formato, trate estas sugestões como hipóteses a testar e acompanhe os resultados no próximo relatório.');
   const dtx=d=>d===null?'':`<small>${d>=0?'▲':'▼'} ${Math.abs(d).toFixed(0)}% vs. mês anterior</small>`;
-  const kp=[['rk1',L.length,'Publicações',''],['rk2',nf(a.alc),'Alcance total',dtx(da)],['rk3',pc(a.eng),'Engajamento médio',dtx(de)],['rk4',nf(a.lk+a.com+a.sal+a.cmp),'Interações',''],['rk5',nf(a.sal),'Salvamentos',''],['rk6',nf(a.cmp),'Compartilhamentos','']];
-  const rows=top.slice(0,3).map(x=>{const[v,cl]=cat(x);return `<tr><td>${fd(x.data)}</td><td>${esc(FN(x.formato))}</td><td>${esc(nm(x))}</td><td>${nf(x.alcance)}</td><td>${pc(eng(x))}</td><td><span class="badge ${cl}">${v}</span></td></tr>`}).join('');
+  const kp=[['rk1',L.length,'Publicações',''],['rk2',nf(a.alc),'Alcance total',dtx(da)],['rk3',pc(a.eng),'Engajamento médio',dtx(de)],['rk4',nf(a.lk+a.com+a.sal+a.cmp),'Interações',''],['rk5',nf(a.sal),'Salvamentos',''],['rk6',nf(a.cmp),'Compartilhamentos',''],['rk7',nf(a.sg),'Seguidores ganhos',dtx(dl(a.sg,p.sg))],['rk8',nf(a.rp),'Reposts','']];
+  const rows=top.slice(0,3).map(x=>{const[v,cl]=cat(x);return `<tr><td>${fd(x.data)}</td><td>${esc(FN(x.formato))}</td><td>${esc(nm(x))}</td><td>${nf(x.alcance)}</td><td>${nf(itc(x))}</td><td>${pc(eng(x))}</td><td>${x.seguidores?'+'+nf(x.seguidores):'—'}</td><td><span class="badge ${cl}">${v}</span></td></tr>`}).join('');
   const li=l=>l.map(x=>`<li>${esc(x)}</li>`).join('');
   const champ=fm.length>1?`<div class="rp-champ"><b>Formato com melhor desempenho no mês:</b> ${esc(FN(fm[0].f))} (${pc(fm[0].e)} de engajamento médio). Menor desempenho: ${esc(FN(fm.at(-1).f))} (${pc(fm.at(-1).e)}).</div>`:'';
   const gw=top.filter(x=>x.headline).slice(0,3),gl=[...top].reverse().filter(x=>x.headline&&!gw.includes(x)).slice(0,2);
@@ -646,12 +658,12 @@ function relRender(){
   <div class="rp-sec"><h3>Engajamento por publicação</h3><div class="rp-ch"><canvas id="c5"></canvas></div>
     <div class="leg"><span><i style="background:#4F6472"></i>Acima do habitual</span><span><i style="background:#AD9C8A"></i>Dentro do habitual</span><span><i style="background:#6A4B35"></i>Abaixo do habitual</span><span><i style="background:#C9CFCB"></i>Sem histórico</span></div></div>
   <div class="rp-2 rp-sec"><div><h3>Engajamento médio por formato</h3><div class="rp-ch"><canvas id="c6"></canvas></div></div><div><h3>Mix de formatos</h3><div class="rp-ch"><canvas id="c7"></canvas></div></div></div>
-  <div class="rp-sec"><h3>Conteúdos de destaque</h3><table class="rp-tb"><thead><tr><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Engajamento</th><th>Avaliação</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="rp-sec"><h3>Conteúdos de destaque</h3><table class="rp-tb"><thead><tr><th>Data</th><th>Formato</th><th>Tema</th><th>Alcance</th><th>Interações</th><th>Engajamento</th><th>Seguidores</th><th>Avaliação</th></tr></thead><tbody>${rows}</tbody></table></div>
   <div class="rp-2 rp-sec"><div><h3>O que funcionou</h3><ul class="rp-list">${li(hi)}</ul></div><div><h3>Pontos de atenção</h3><ul class="rp-list">${li(at)}</ul></div></div>
   ${ganchos}
   <div class="rp-sec rp-next"><h3>Sugestão para o próximo mês</h3><ul class="rp-list">${li(nx)}</ul></div>
   <div class="rp-sec" id="rpn-sec"><h3>Comentário do estrategista</h3><div id="rpn"></div></div>
-  <p class="rp-foot">Engajamento = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance. Números informados a partir dos Insights do Instagram. Gerado em ${new Date().toLocaleDateString('pt-BR')}.</p>`;
+  <p class="rp-foot">Engajamento = (curtidas + comentários + salvamentos + compartilhamentos) ÷ alcance. Exemplo: o conteúdo de destaque teve ${nf(itc(best))} interações para ${nf(best.alcance)} contas alcançadas, ou seja, ${pc(eng(best))}. Números informados a partir dos Insights do Instagram. Gerado em ${new Date().toLocaleDateString('pt-BR')}.</p>`;
   Chart.defaults.color='#33302C';Chart.defaults.font.family='Lekton, monospace';
   charts.r1=new Chart($('#c5'),{type:'bar',data:{labels:M.map(x=>fd(x.data)),datasets:[{label:'Engajamento (%)',data:M.map(x=>+eng(x).toFixed(2)),backgroundColor:M.map(x=>VC[cat(x)[1]]),borderRadius:10}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterTitle:i=>nm(M[i[0].dataIndex])}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Engajamento (%)'},grid:{color:'rgba(0,0,0,.08)'}}}}});
@@ -659,7 +671,7 @@ function relRender(){
     options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.08)'}}}}});
   const fg=grp(M,x=>x.formato),fk=Object.keys(fg);
   donut('r3','#c7',fk.map(FN),fk.map(f=>fg[f].length),fk.map((f,i)=>FC[f]||PAL[i%PAL.length]),true);
-  rpText=`Relatório de ${mesNome(m)} — ${c.nome}\nPublicações: ${L.length} | Alcance total: ${nf(a.alc)} | Engajamento médio: ${pc(a.eng)} | Salvamentos: ${nf(a.sal)} | Compartilhamentos: ${nf(a.cmp)}\n\nO que funcionou:\n${hi.map(x=>'- '+x).join('\n')}\n\nPontos de atenção:\n${at.map(x=>'- '+x).join('\n')}${gtxt}\n\nSugestão para o próximo mês:\n${nx.map(x=>'- '+x).join('\n')}`;
+  rpText=`Relatório de ${mesNome(m)} — ${c.nome}\nPublicações: ${L.length} | Alcance total: ${nf(a.alc)} | Engajamento médio: ${pc(a.eng)} | Salvamentos: ${nf(a.sal)} | Compartilhamentos: ${nf(a.cmp)} | Seguidores ganhos: ${nf(a.sg)} | Reposts: ${nf(a.rp)}\n\nO que funcionou:\n${hi.map(x=>'- '+x).join('\n')}\n\nPontos de atenção:\n${at.map(x=>'- '+x).join('\n')}${gtxt}\n\nSugestão para o próximo mês:\n${nx.map(x=>'- '+x).join('\n')}`;
   rpNote();
 }
 
@@ -716,6 +728,8 @@ function desemp(){
     if(te.length)t.push('Temas que mais engajaram: '+te.slice(0,3).map(x=>`${x[0]} (${pc(x[1])})`).join('; '));
     if(te.length>2)t.push('Temas mais fracos: '+te.slice(-2).map(x=>`${x[0]} (${pc(x[1])})`).join('; '));
     t.push('Engajamento médio por formato: '+Object.entries(grp(all,x=>x.formato)).map(([f,v])=>`${FM[f]} ${pc(avg(v.map(eng)))}`).join('; '));
+    const sg=Object.entries(grp(all.filter(x=>tk(x)&&x.seguidores>0),tk)).map(([,v])=>[v[0].tema,avg(v.map(x=>x.seguidores))]).sort((a,b)=>b[1]-a[1]);
+    if(sg.length)t.push('Temas que mais geraram seguidores (média por conteúdo): '+sg.slice(0,3).map(x=>`${x[0]} (${Math.round(x[1])})`).join('; '));
     all.filter(x=>x.aprendizado).slice(0,3).forEach(x=>t.push('Aprendizado: '+x.aprendizado));
   }else t.push('Ainda há poucos conteúdos medidos para este cliente.');
   [['Temas em alta ou que funcionam','temas',['alta','funciona']],['Temas que não funcionaram','temas',['nao']],['Estratégias que funcionam','estrategias',['funciona']],['Headlines que funcionaram','headlines',['funciona']],['Headlines que não funcionaram','headlines',['nao']]].forEach(([n,k,s])=>{
