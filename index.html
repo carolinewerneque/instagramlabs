@@ -108,6 +108,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--brown);box-shado
 .rp-champ{margin-top:18px;padding:14px 18px;border-radius:20px;background:#EBE7E3;border-left:6px solid #6A4B35}
 .tb{width:100%;border-collapse:collapse;font-size:14px}.tb th,.tb td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}.tb tr.er td{background:rgba(106,75,53,.16)}
 .rp-foot{margin-top:28px;font-size:12px;color:#5E6A70}
+.item a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .hide{display:none}
 @media(max-width:800px){.rp-2{grid-template-columns:1fr}.report{padding:20px}}
 @media(min-width:900px){
@@ -120,7 +121,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--brown);box-shado
 #app>section:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
 #app>section:not(.hide)>.panel{margin-bottom:0}
 #app>section:not(.hide)>.kpis{grid-column:1/-1;margin-bottom:0}
-#v-painel>.panel:first-child,#v-reg>.panel,#v-imp>.panel,#v-clientes>.panel:last-child,#v-rel>.panel,#v-rel>.report{grid-column:1/-1}
+#v-painel>.panel:first-child,#v-reg>.panel,#v-imp>.panel,#v-leads>.panel,#v-clientes>.panel:last-child,#v-rel>.panel,#v-rel>.report{grid-column:1/-1}
 }
 @media(min-width:1700px){.kpis{grid-template-columns:repeat(6,1fr)}}
 @media print{
@@ -156,7 +157,7 @@ body{background:#fff}body::before{display:none}
   <label for="sel">Cliente</label>
   <select id="sel"></select>
   <nav id="nav" aria-label="Seções"></nav>
-  <div class="ver">Versão 03/10: quantidades completas</div>
+  <div class="ver">Versão 03/10b: contatos</div>
 </aside>
 <div id="scrim" class="hide"></div>
 
@@ -269,6 +270,13 @@ body{background:#fff}body::before{display:none}
   <div class="panel hide" id="im-box"><h2 id="im-t">Prévia</h2><div id="im-tab" style="overflow-x:auto"></div><button class="big" id="im-go">Confirmar importação</button></div>
 </section>
 
+<section id="v-leads" class="hide">
+  <div class="panel"><h2>Contatos da landing page</h2>
+    <p class="muted" style="margin-top:0" id="ld-info"></p>
+    <div id="ld-list"></div>
+  </div>
+</section>
+
 <section id="v-clientes" class="hide">
   <div class="panel"><h2>Novo cliente</h2>
     <div class="row">
@@ -324,8 +332,9 @@ function donut(key,canvas,labels,data,colors,light){
   charts[key]=new Chart($(canvas),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:light?'#fff':(isDark()?'#2B3338':'#FBFAF8'),borderWidth:4}]},options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right'}}}});
 }
 const IC=p=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const NAVS=[['painel','Painel','<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>'],['cal','Calendário','<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>'],['reg','Registrar','<path d="M12 5v14M5 12h14"/>'],['imp','Importar','<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'],['rel','Relatório','<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>'],['headlines','Headlines','<path d="M5 6h14M12 6v13M9 19h6"/>'],['estrategias','Estratégias','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'],['temas','Temas','<path d="M4 4h8l8 8-8 8-8-8z"/><circle cx="8.5" cy="8.5" r="1"/>'],['ger','Gerador','<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>'],['clientes','Clientes','<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M16 5a3.5 3.5 0 010 7M21 20c0-2.5-1.5-4.5-4-5.3"/>'],['conta','Minha conta','<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>']];
+const NAVS=[['painel','Painel','<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>'],['cal','Calendário','<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>'],['reg','Registrar','<path d="M12 5v14M5 12h14"/>'],['imp','Importar','<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'],['rel','Relatório','<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>'],['headlines','Headlines','<path d="M5 6h14M12 6v13M9 19h6"/>'],['estrategias','Estratégias','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'],['temas','Temas','<path d="M4 4h8l8 8-8 8-8-8z"/><circle cx="8.5" cy="8.5" r="1"/>'],['ger','Gerador','<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>'],['clientes','Clientes','<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M16 5a3.5 3.5 0 010 7M21 20c0-2.5-1.5-4.5-4-5.3"/>'],['leads','Contatos','<path d="M4 5h16v11H8l-4 4z"/>'],['conta','Minha conta','<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>']];
 function mkNav(){$('#nav').innerHTML=NAVS.map(([k,l,p],i)=>`<button class="chip" data-v="${k}" aria-pressed="${i===0}">${IC(p)}<span>${l}</span></button>`).join('')}
+let leads=[],leadsErr='';
 let db=null,cli=[],con=[],bk={temas:[],estrategias:[],headlines:[]},gen=[],cur=null,days=30,view='painel',editId=null,charts={};
 try{cur=localStorage.getItem('cur')}catch(e){}
 try{db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
@@ -355,6 +364,8 @@ async function loadAll(){
   const er=r.find(x=>x.error)?.error;
   if(er)say('Erro ao carregar: '+esc(er.message)+'. Você rodou o SQL das tabelas?',1);
   cli=r[0].data||[];con=r[1].data||[];Object.keys(BK).forEach((k,i)=>bk[k]=r[i+2].data||[]);
+  const lr=await db.from('leads').select('*').order('created_at',{ascending:false});
+  leads=lr.error?[]:lr.data||[];leadsErr=lr.error?lr.error.message:'';
   if(!cli.find(x=>x.id===cur))cur=cli[0]?.id||null;
   renderAll();
 }
@@ -387,7 +398,7 @@ function renderAll(){
   $('#dl-temas').innerHTML=usados.map(n=>`<option value="${esc(n)}">`).join('');
   Object.keys(BK).forEach(renderBank);
   $('#clist').innerHTML=cli.length?cli.map(c=>`<div class="item"><div class="it-top"><b>${esc(c.nome)}</b><span class="muted">${esc(c.nicho||'')}</span></div>${c.notas?`<div class="muted">${esc(c.notas)}</div>`:''}<div class="acts"><button class="ghost sm" data-cdel="${c.id}">Excluir</button></div></div>`).join(''):'<p class="muted">Nenhum cliente ainda. Cadastre o primeiro acima.</p>';
-  pfFill();go(view);
+  renderLeads();pfFill();go(view);
 }
 
 /* ===== PAINEL ===== */
@@ -675,6 +686,23 @@ function relRender(){
   rpNote();
 }
 
+/* ===== CONTATOS DA LANDING PAGE ===== */
+const ST_L={novo:'Novo',contatado:'Contatado',orcamento:'Orçamento enviado',fechado:'Fechado',descartado:'Descartado'};
+const waNum=n=>{n=String(n||'').replace(/\D/g,'');return n.length<=11?'55'+n:n};
+function leadTxt(l){return [`${l.nome} (${l.profissao||'sem profissão'})`,`Serviço indicado: ${l.resultado||''}`,l.volume?`Volume: ${l.volume}`:'',`WhatsApp: ${l.whatsapp}`,l.instagram?`Instagram: ${l.instagram}`:'',l.inicio?`Começar: ${l.inicio}`:'',l.observacoes?`Observações: ${l.observacoes}`:''].filter(Boolean).join('\n')}
+function renderLeads(){
+  const nv=leads.filter(l=>l.status==='novo').length,b=$('#nav [data-v="leads"] span');
+  if(b)b.textContent='Contatos'+(nv?` (${nv})`:'');
+  $('#ld-info').textContent=leadsErr?'Não foi possível ler os contatos: '+leadsErr+'. Você rodou o SQL da tabela leads?':(leads.length?`${leads.length} contato(s), ${nv} novo(s).`:'Nenhum contato ainda. Quando alguém concluir o diagnóstico na landing page, ele aparece aqui.');
+  $('#ld-list').innerHTML=leads.map(l=>`<div class="item"><div class="it-top"><b>${esc(l.nome)}</b><span class="badge ${l.status==='novo'?'v3':'v2'}">${esc(ST_L[l.status]||l.status)}</span></div>
+    <div>${esc(l.resultado||'')}${l.volume?', '+esc(l.volume)+' vídeos por mês':''}</div>
+    <div class="muted">${esc(l.profissao||'')}${l.inicio?' — começar: '+esc(l.inicio):''} — ${new Date(l.created_at).toLocaleDateString('pt-BR')}</div>
+    <div><a href="https://wa.me/${waNum(l.whatsapp)}" target="_blank" rel="noopener">WhatsApp ${esc(l.whatsapp)}</a>${l.instagram?` &nbsp; <a href="https://instagram.com/${esc(String(l.instagram).replace('@',''))}" target="_blank" rel="noopener">${esc(l.instagram)}</a>`:''}</div>
+    ${l.observacoes?`<div class="muted">Observações: ${esc(l.observacoes)}</div>`:''}
+    ${Array.isArray(l.respostas)&&l.respostas.length?`<details><summary>Respostas do diagnóstico</summary><ul class="rp-list" style="margin-top:8px">${l.respostas.map(r=>`<li><b>${esc(r.pergunta)}</b> ${esc(r.resposta)}</li>`).join('')}</ul></details>`:''}
+    <div class="acts"><select data-lst="${l.id}" aria-label="Situação do contato">${opts(ST_L).replace(`value="${l.status}"`,`value="${l.status}" selected`)}</select><button class="ghost sm" data-cpl="${l.id}">Copiar contato</button><button class="ghost sm" data-ldel="${l.id}">Excluir</button></div></div>`).join('');
+}
+
 /* ===== COPIAR TEXTOS ===== */
 const conTxt=c=>[c.headline,c.corpo,c.cta].filter(Boolean).join('\n\n')||c.tema||'';
 const txtBlock=c=>(c.corpo||c.cta)?`<details><summary>Ver texto completo</summary><div style="white-space:pre-wrap;margin-top:6px">${esc(conTxt(c))}</div></details>`:'';
@@ -818,6 +846,8 @@ $('#k-copy').onclick=()=>cp('#k-out');$('#g-copy').onclick=()=>cp('#gbt');
 $('#g-go').onclick=gerar;$('#g-brief').onclick=briefing;$('#pf-save').onclick=pfSave;
 $('#app').addEventListener('click',async e=>{const d=e.target.dataset;
   if(d.hl!==undefined)hlSync();
+  if(d.ldel)remove('leads',d.ldel,'Excluir este contato?');
+  if(d.cpl){const l=leads.find(x=>x.id===d.cpl);if(l)flash(e.target,await copyTxt(leadTxt(l)))}
   if(d.cpc){const c=con.find(x=>x.id===d.cpc);if(c)flash(e.target,await copyTxt(conTxt(c)))}
   if(d.cpb){const[k,i]=d.cpb.split('|'),t=bk[k].find(x=>x.id===i);if(t)flash(e.target,await copyTxt(t.tema+(t.nota?'\n\n'+t.nota:'')))}
   if(d.cpg!==undefined){const x=gen[+d.cpg];if(x)flash(e.target,await copyTxt(x.txt))}
@@ -833,6 +863,7 @@ $('#app').addEventListener('click',async e=>{const d=e.target.dataset;
 $('#app').addEventListener('change',async e=>{const d=e.target.dataset;
   if(d.bst){const[k,i]=d.bst.split('|');if(await save(k,{status:e.target.value},i))loadAll()}
   if(d.fn)renderBank(d.fn);
+  if(d.lst&&await save('leads',{status:e.target.value},d.lst))loadAll();
   if(d.kst&&await save('conteudos',{status:e.target.value},d.kst))loadAll();
   if(d.ck!==undefined){let st=[];try{st=JSON.parse(localStorage.getItem(ckKey())||'[]')}catch(x){}st[+d.ck]=e.target.checked;try{localStorage.setItem(ckKey(),JSON.stringify(st))}catch(x){}}
 });

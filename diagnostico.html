@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico de conteúdo</title>
+<meta name="description" content="Descubra qual solução faz mais sentido para o seu conteúdo: edição de vídeos, estratégia de conteúdo ou o Método Estratégico de Conteúdo.">
+<meta name="theme-color" content="#F6F3EF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--paper:#F6F3EF;--ink:#33302C;--mut:#6B6560;--blue:#7C929E;--deep:#4F6472;--taupe:#AD9C8A;--brown:#6A4B35;--line:#DAD3CB}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100dvh;background:var(--paper);color:var(--ink);font:300 16px/1.6 Poppins,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+background-image:radial-gradient(520px 520px at 100% 0,rgba(124,146,158,.22),transparent 70%),radial-gradient(460px 460px at 0 100%,rgba(173,156,138,.26),transparent 70%);background-attachment:fixed}
+.wrap{max-width:600px;margin:0 auto;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.brand{font:500 12px Poppins,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--brown)}
+.back{background:none;border:0;color:var(--mut);font:400 14px Poppins,sans-serif;cursor:pointer;padding:10px 4px;min-height:44px}
+.bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--deep);transition:width .35s}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 0}
+.scr{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.scr{animation:none}.bar i{transition:none}}
+h1,h2{font:600 clamp(32px,9vw,46px)/1.1 'Cormorant Garamond',Georgia,serif;margin:0 0 14px;letter-spacing:-.01em}
+h2{font-size:clamp(27px,7vw,36px)}
+h1:focus,h2:focus{outline:none}
+p{margin:0 0 14px}
+.lead{color:var(--mut)}
+.kicker{font:500 12px Poppins,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--deep);margin-bottom:8px}
+.opts{display:grid;gap:12px;margin-top:22px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:14px 18px;text-align:left;font:400 15px/1.4 Poppins,sans-serif;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:18px;cursor:pointer;transition:border-color .2s,background .2s,transform .1s}
+.opt:hover{border-color:var(--blue)}
+.opt:active{transform:scale(.99)}
+.opt[aria-pressed=true]{border-color:var(--deep);background:#EEF2F4}
+.dot{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--taupe);display:grid;place-items:center}
+.opt[aria-pressed=true] .dot{background:var(--deep);border-color:var(--deep)}
+.opt[aria-pressed=true] .dot::after{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+.multi .dot{border-radius:6px}
+.multi .opt[aria-pressed=true] .dot::after{border-radius:2px;width:8px;height:8px}
+.btn{display:block;width:100%;min-height:58px;margin-top:22px;padding:15px 22px;font:500 16px Poppins,sans-serif;text-align:center;text-decoration:none;color:#fff;background:var(--brown);border:0;border-radius:18px;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+label{display:block;font:500 13px Poppins,sans-serif;color:var(--mut);margin:16px 0 6px}
+input[type=text],input[type=tel],textarea{width:100%;font:400 16px Poppins,sans-serif;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;min-height:52px}
+textarea{resize:vertical;min-height:90px}
+.seg{display:grid;gap:10px}
+.seg .opt{min-height:54px}
+.chk{display:flex;gap:12px;align-items:flex-start;margin-top:18px;font-size:13px;color:var(--mut);font-weight:400}
+.chk input{flex:none;width:22px;height:22px;margin-top:2px;accent-color:var(--brown)}
+.err{color:#9A3F2B;font-size:13px;margin:6px 0 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.nolist{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px}
+.nolist li{display:flex;gap:12px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:15px}
+.nolist li::before{content:"×";flex:none;width:24px;height:24px;border-radius:50%;background:var(--brown);color:#fff;display:grid;place-items:center;font-size:16px;line-height:1}
+.close{border-left:3px solid var(--taupe);padding-left:16px;color:var(--ink)}
+.tag{display:inline-block;font:500 12px Poppins,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--deep);border-radius:999px;padding:6px 14px;margin-bottom:14px}
+.sum{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:8px;font-size:14px;color:var(--mut)}
+.sum b{color:var(--ink);font-weight:500}
+.note{font-size:13px;color:var(--mut);text-align:center;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="brand" id="brand">Diagnóstico de conteúdo</span><button class="back" id="back" hidden>Voltar</button></div>
+  <div class="bar" role="progressbar" aria-label="Progresso do diagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pb"><i id="pf"></i></div>
+  <main id="app" aria-live="polite"></main>
+</div>
+<noscript><p style="padding:24px">Ative o JavaScript para fazer o diagnóstico.</p></noscript>
+<script>
+/* ===== CONFIGURAÇÃO ===== */
+const CFG={
+  WHATSAPP:'5527999853506',   // seu número com país e DDD, só números. Ex.: 5527999999999
+  MARCA:'NEXO - ESTRATÉGIA E EDIÇÃO',      // nome que aparece no topo (opcional)
+  SUPABASE_URL:'https://wqzedkpxriudwpwvkvvh.supabase.co',
+  SUPABASE_KEY:'sb_publishable_zlfg3DrS8KkSzvvWzuOsdA_dy_rfaOl'
+};
+
+/* ===== CONTEÚDO DO QUIZ ===== */
+const SV={edicao:'Edição de vídeos',estrategia:'Estratégia de conteúdo',metodo:'Método Estratégico de Conteúdo',ee:'Estratégia + Edição de vídeos'};
+const TX={
+  edicao:'Você já tem direção sobre o que produzir e precisa principalmente transformar suas gravações em conteúdos profissionais, dinâmicos e preparados para as redes sociais.',
+  estrategia:'Você precisa organizar melhor sua comunicação, definir o que produzir e criar uma linha de conteúdo consistente para não depender de ideias aleatórias todos os dias.',
+  metodo:'Você não precisa apenas de uma lista de posts. Precisa construir uma lógica por trás do conteúdo: posicionamento, público, pilares, ideias, headlines, narrativa, autoridade, retenção e conversão trabalhando juntos.',
+  ee:'Você quer centralizar a direção estratégica e a execução dos vídeos, mantendo uma comunicação coerente desde a ideia até o conteúdo final.'
+};
+const VOL=['Até 8','9 a 15','16 a 20','Mais de 20'];
+const Q={
+ q1:{t:'O que você precisa hoje?',o:[
+  {v:'edicao',t:'Quero apenas alguém para editar meus vídeos.'},
+  {v:'estrategia',t:'Preciso de ajuda para saber o que postar e como me posicionar.'},
+  {v:'metodo',t:'Quero uma estratégia completa e um método para meu conteúdo.'},
+  {v:'ee',t:'Quero estratégia + edição dos meus vídeos.'},
+  {v:'naosei',t:'Ainda não sei qual opção é a melhor para mim.'}]},
+ ed1:{t:'Como está sua produção de conteúdo hoje?',o:[
+  {v:'ja',t:'Já tenho estratégia e roteiros. Preciso apenas da edição.'},
+  {v:'estrutura',t:'Tenho os vídeos gravados, mas gostaria de melhorar a estrutura deles.'},
+  {v:'ideias',t:'Preciso também de ajuda com ideias, headlines e direcionamento.'}]},
+ vol1:{t:'Quantos vídeos você pretende produzir por mês?',o:VOL.map(x=>({v:x,t:x}))},
+ es1:{t:'Qual dessas situações mais parece com o seu momento?',o:[
+  {v:'conhecimento',t:'Tenho conhecimento, mas não sei transformar isso em conteúdo.',m:1,e:1},
+  {v:'aleatorio',t:'Até posto, mas meu conteúdo parece aleatório.',e:2},
+  {v:'ideias',t:'Tenho dificuldade para criar ideias e pautas.',e:2},
+  {v:'headlines',t:'Preciso melhorar minhas headlines, roteiros e comunicação.',e:2},
+  {v:'estruturada',t:'Quero construir uma estratégia realmente estruturada para crescer e me posicionar.',m:3}]},
+ es2:{t:'O que você espera receber dessa estratégia?',o:[
+  {v:'plano',t:'Um planejamento para saber o que produzir.',e:2},
+  {v:'ideias',t:'Ideias, temas e direcionamento editorial.',e:2},
+  {v:'roteiros',t:'Roteiros e estrutura para meus conteúdos.',e:2},
+  {v:'posicionamento',t:'Posicionamento, público, pilares, narrativa, headlines e estratégia completa.',m:3},
+  {v:'integrado',t:'Quero tudo isso sendo pensado de forma integrada.',m:3}]},
+ es3:{t:'Você procura apenas um planejamento de conteúdo ou quer construir uma lógica estratégica por trás do que publica?',o:[
+  {v:'org',t:'Quero principalmente organização e planejamento.',e:2},
+  {v:'comunicar',t:'Quero entender melhor o que comunicar e como comunicar.',e:1,m:1},
+  {v:'converter',t:'Quero criar conteúdo pensado para atrair, prender atenção, gerar autoridade e converter.',m:4},
+  {v:'nsei',t:'Ainda não sei.'}]},
+ ee1:{t:'O que você quer deixar sob minha responsabilidade?',hint:'Você pode marcar mais de uma opção.',multi:1,o:[
+  'Planejamento de conteúdo','Ideias e pautas','Headlines','Estrutura dos vídeos','Roteiros','Estratégia de posicionamento','Edição dos vídeos','Análise e direcionamento do conteúdo'].map(x=>({v:x,t:x}))},
+ vol2:{t:'Qual é o seu volume aproximado?',o:['Até 8 vídeos por mês','9 a 15','16 a 20','Mais de 20','Ainda preciso definir'].map(x=>({v:x,t:x}))},
+ ns1:{t:'Qual é o maior problema do seu conteúdo hoje?',o:[
+  {v:'so_editar',t:'Sei o que quero falar, só preciso de alguém para editar.'},
+  {v:'nao_sei_postar',t:'Não sei o que postar.'},
+  {v:'sem_estrategia',t:'Produzo bastante, mas não vejo uma estratégia por trás.',m:2},
+  {v:'conhecimento',t:'Não consigo transformar meu conhecimento em conteúdo interessante.',m:1,e:1},
+  {v:'nao_prende',t:'Meu conteúdo não prende atenção.',m:1,e:1},
+  {v:'profissionalizar',t:'Quero profissionalizar tudo: estratégia + produção.'}]}
+};
+const NAO=['Responder comentários','Abrir ou responder mensagens no direct','Atendimento ao cliente pelo Instagram','Gestão de comunidade','Produção diária de stories','Interação diária com seguidores','SAC ou atendimento comercial pelas redes sociais'];
+const INICIO=['Agora','Nos próximos 30 dias','Nos próximos meses'];
+
+/* ===== ESTADO ===== */
+const A={},I={nome:'',profissao:'',instagram:'',whatsapp:'',inicio:'',obs:'',ok:false,hp:''};
+let step=0,done=false,sentOK=false,sb=null,errs={};
+try{sb=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY)}catch(e){}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const save=()=>{try{localStorage.setItem('dx',JSON.stringify({A,I,step,done}))}catch(e){}};
+function load(){try{const d=JSON.parse(localStorage.getItem('dx')||'null');if(d&&!d.done){Object.assign(A,d.A);Object.assign(I,d.I);return d.step||0}}catch(e){}return 0}
+
+/* ===== LÓGICA ===== */
+function flow(){
+  const f=['q1'],p=A.q1;if(!p)return f;
+  if(p==='edicao')f.push('ed1','vol1');
+  else if(p==='estrategia'||p==='metodo')f.push('es1','es2','es3');
+  else if(p==='ee')f.push('ee1','vol2');
+  else if(p==='naosei'){f.push('ns1');const n=A.ns1;
+    if(n==='so_editar')f.push('vol1');
+    else if(n==='profissionalizar')f.push('vol2');
+    else if(['sem_estrategia','conhecimento','nao_prende'].includes(n))f.push('es3')}
+  return f;
+}
+const seq=()=>['intro',...flow(),'scope','form','result'];
+function prune(){const k=new Set(flow());Object.keys(A).forEach(x=>{if(!k.has(x))delete A[x]})}
+function score(){
+  let m=0,e=0;
+  ['ns1','es1','es2','es3'].forEach(id=>{const o=Q[id].o.find(x=>x.v===A[id]);if(o){m+=o.m||0;e+=o.e||0}});
+  if(A.q1==='metodo')m+=2;
+  return m>e?'metodo':'estrategia';
+}
+function decide(){
+  const p=A.q1;
+  if(p==='edicao')return A.ed1==='ja'?'edicao':'ee';
+  if(p==='ee')return 'ee';
+  if(p==='naosei'){const n=A.ns1;
+    if(n==='so_editar')return 'edicao';
+    if(n==='nao_sei_postar')return 'estrategia';
+    if(n==='profissionalizar')return 'ee';}
+  return score();
+}
+function txt(id){
+  const q=Q[id],a=A[id];if(a==null||a==='')return '';
+  return Array.isArray(a)?a.join(', '):(q.o.find(x=>x.v===a)||{}).t||'';
+}
+const volText=()=>A.vol1?txt('vol1'):A.vol2?txt('vol2'):'';
+const needText=()=>['ns1','ed1','es1','es2','es3','ee1'].map(txt).filter(Boolean).join(' | ');
+function igHandle(){const h=I.instagram.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/[/?].*$/,'').replace(/^@/,'');return h?'@'+h:''}
+function waMsg(){
+  const r=decide(),L=['Oi! Acabei de fazer o diagnóstico pelo seu site e quero solicitar um orçamento.','',
+   'Nome: '+I.nome,'Instagram: '+igHandle(),'Serviço indicado: '+SV[r],'Principal necessidade: '+(needText()||'—')];
+  if(volText())L.push('Volume de vídeos: '+volText());
+  L.push('Prazo para começar: '+I.inicio);
+  if(I.obs.trim())L.push('Observações: '+I.obs.trim());
+  return L.join('\n');
+}
+const waUrl=()=>'https://wa.me/'+CFG.WHATSAPP.replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg());
+function payload(){
+  const r=decide();
+  return {nome:I.nome.trim(),profissao:I.profissao.trim(),instagram:igHandle(),whatsapp:I.whatsapp.replace(/\D/g,''),inicio:I.inicio,observacoes:I.obs.trim()||null,
+    resultado:SV[r],volume:volText()||null,respostas:flow().map(id=>({pergunta:Q[id].t,resposta:txt(id)})).filter(x=>x.resposta)};
+}
+async function sendLead(){
+  if(!sb||sentOK)return sentOK;
+  try{const {error}=await sb.from('leads').insert(payload());if(!error)sentOK=true}catch(e){}
+  return sentOK;
+}
+function validate(){
+  const e={},d=I.whatsapp.replace(/\D/g,'');
+  if(I.nome.trim().length<2)e.nome='Informe seu nome.';
+  if(I.profissao.trim().length<2)e.profissao='Informe sua profissão ou empresa.';
+  if(igHandle().length<3)e.instagram='Informe seu Instagram.';
+  if(d.length<10||d.length>13)e.whatsapp='Informe um WhatsApp válido com DDD.';
+  if(!I.inicio)e.inicio='Escolha quando pretende começar.';
+  if(!I.ok)e.ok='Para continuar, é preciso concordar.';
+  return e;
+}
+
+/* ===== TELAS ===== */
+function question(id){
+  const q=Q[id],sel=A[id],m=!!q.multi;
+  return `<div class="scr"><h2 tabindex="-1">${esc(q.t)}</h2>${q.hint?`<p class="lead">${esc(q.hint)}</p>`:''}
+  <div class="opts ${m?'multi':''}" role="group" aria-label="${esc(q.t)}">${q.o.map(o=>`<button class="opt" data-v="${esc(o.v)}" aria-pressed="${m?(sel||[]).includes(o.v):sel===o.v}"><span class="dot"></span><span>${esc(o.t)}</span></button>`).join('')}</div>
+  ${m?`<button class="btn" id="nx" ${(sel||[]).length?'':'disabled'}>Continuar</button>`:''}</div>`;
+}
+function intro(){
+  const has=Object.keys(A).length>0;
+  return `<div class="scr"><h1 tabindex="-1">Descubra qual solução faz mais sentido para o seu conteúdo.</h1>
+  <p class="lead">Responda algumas perguntas rápidas. No final, vou indicar o serviço mais adequado para o momento da sua marca ou perfil.</p>
+  <button class="btn" id="go">Começar diagnóstico</button>${has?'<button class="btn ghost" id="resume" style="margin-top:12px">Continuar de onde parei</button>':''}</div>`;
+}
+function scope(){
+  return `<div class="scr"><h2 tabindex="-1">Como funciona meu trabalho</h2>
+  <p>Meu trabalho é focado na estratégia e na construção do conteúdo: posicionamento, planejamento, ideias, headlines, roteiros, estrutura e edição de vídeos, de acordo com o serviço contratado.</p>
+  <p>Isso significa que meu trabalho não é uma gestão tradicional de redes sociais.</p>
+  <p class="kicker" style="margin-top:22px">Meu trabalho NÃO inclui:</p>
+  <ul class="nolist">${NAO.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+  <p class="close">Você continua tendo controle direto sobre o relacionamento com sua audiência. Eu cuido da estratégia e da produção do conteúdo.</p>
+  <button class="btn" id="nx">Entendi, continuar</button></div>`;
+}
+const fe=k=>errs[k]?`<p class="err" role="alert">${esc(errs[k])}</p>`:'';
+function form(){
+  return `<div class="scr"><h2 tabindex="-1">Quase lá. Para quem devo indicar o resultado?</h2>
+  <label for="f-nome">Nome</label><input type="text" id="f-nome" data-f="nome" autocomplete="name" value="${esc(I.nome)}">${fe('nome')}
+  <label for="f-prof">Profissão ou empresa</label><input type="text" id="f-prof" data-f="profissao" autocomplete="organization" value="${esc(I.profissao)}">${fe('profissao')}
+  <label for="f-ig">Instagram</label><input type="text" id="f-ig" data-f="instagram" placeholder="@seuperfil" autocapitalize="none" autocorrect="off" value="${esc(I.instagram)}">${fe('instagram')}
+  <label for="f-wa">WhatsApp</label><input type="tel" id="f-wa" data-f="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" value="${esc(I.whatsapp)}">${fe('whatsapp')}
+  <label>Quando pretende começar?</label>
+  <div class="seg" role="group" aria-label="Quando pretende começar">${INICIO.map(x=>`<button type="button" class="opt" data-i="${esc(x)}" aria-pressed="${I.inicio===x}"><span class="dot"></span><span>${esc(x)}</span></button>`).join('')}</div>${fe('inicio')}
+  <label for="f-obs">Observações (opcional)</label><textarea id="f-obs" data-f="obs">${esc(I.obs)}</textarea>
+  <div class="hp" aria-hidden="true"><label for="f-hp">Não preencha</label><input type="text" id="f-hp" data-f="hp" tabindex="-1" autocomplete="off"></div>
+  <label class="chk" for="f-ok"><input type="checkbox" id="f-ok" data-c="ok" ${I.ok?'checked':''}><span>Concordo em ser contatado(a) sobre o meu orçamento e em ter estes dados usados apenas para isso.</span></label>${fe('ok')}
+  <button class="btn" id="sub">Ver meu diagnóstico</button></div>`;
+}
+function result(){
+  const r=decide(),nome=I.nome.trim().split(/\s+/)[0]||'',lines=[];
+  const need=txt('ns1')||txt('ed1')||txt('es1')||txt('ee1');
+  if(need)lines.push(`<li><b>Seu momento:</b> ${esc(need)}</li>`);
+  if(volText())lines.push(`<li><b>Volume de vídeos:</b> ${esc(volText())}</li>`);
+  lines.push(`<li><b>Para começar:</b> ${esc(I.inicio)}</li>`);
+  return `<div class="scr"><p class="kicker">${nome?esc(nome)+', seu':'Seu'} diagnóstico</p>
+  <span class="tag">Serviço indicado</span><h1 tabindex="-1">${esc(SV[r])}</h1><p>${esc(TX[r])}</p>
+  <ul class="sum">${lines.join('')}</ul>
+  <a class="btn" id="wa" href="${esc(CFG.WHATSAPP?waUrl():'#')}" target="_blank" rel="noopener">Quero solicitar meu orçamento</a>
+  <p class="note">Ao clicar, você abre meu WhatsApp com as informações do seu diagnóstico já preenchidas.</p>
+  ${CFG.WHATSAPP?'':'<p class="err">Configure o número do WhatsApp no arquivo (CFG.WHATSAPP).</p>'}</div>`;
+}
+
+/* ===== RENDER E EVENTOS ===== */
+function render(){
+  const s=seq();step=Math.max(0,Math.min(step,s.length-1));const id=s[step];
+  $('app').innerHTML=id==='intro'?intro():id==='scope'?scope():id==='form'?form():id==='result'?result():question(id);
+  const pct=Math.round(step/(s.length-1)*100);$('pf').style.width=pct+'%';$('pb').setAttribute('aria-valuenow',pct);
+  $('back').hidden=step===0||id==='result';
+  const h=$('app').querySelector('h1,h2');if(h)h.focus({preventScroll:true});
+  window.scrollTo(0,0);
+}
+function go(n){step+=n;save();render()}
+function pick(id,v){
+  const q=Q[id];
+  if(q.multi){const a=A[id]||[],i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);A[id]=a}
+  else A[id]=v;
+  prune();save();
+}
+async function submit(){
+  if(I.hp){done=true;step=seq().length-1;render();return}
+  errs=validate();
+  if(Object.keys(errs).length){render();const k=Object.keys(errs)[0],el={nome:'f-nome',profissao:'f-prof',instagram:'f-ig',whatsapp:'f-wa',inicio:'f-ok',ok:'f-ok'}[k];if(el)$(el).focus();return}
+  const b=$('sub');b.disabled=true;b.textContent='Preparando seu diagnóstico...';
+  await sendLead();
+  done=true;step=seq().length-1;save();render();
+}
+$('app').addEventListener('click',e=>{
+  const t=e.target.closest('button,a');if(!t)return;
+  if(t.id==='go'){Object.keys(A).forEach(k=>delete A[k]);step=1;save();render();return}
+  if(t.id==='resume'){step=load()||1;render();return}
+  if(t.id==='nx'){go(1);return}
+  if(t.id==='sub'){submit();return}
+  if(t.id==='wa'){sendLead();return}
+  if(t.dataset.i){I.inicio=t.dataset.i;delete errs.inicio;save();$('app').querySelectorAll('[data-i]').forEach(b=>b.setAttribute('aria-pressed',b===t));return}
+  if(t.dataset.v!==undefined){
+    const id=seq()[step],multi=!!Q[id].multi;pick(id,t.dataset.v);
+    if(multi){t.setAttribute('aria-pressed',(A[id]||[]).includes(t.dataset.v));$('nx').disabled=!(A[id]||[]).length}
+    else setTimeout(()=>go(1),200);
+  }
+});
+$('app').addEventListener('input',e=>{const f=e.target.dataset.f;if(f){I[f]=e.target.value;save()}});
+$('app').addEventListener('change',e=>{if(e.target.dataset.c){I.ok=e.target.checked;save()}});
+$('back').addEventListener('click',()=>go(-1));
+if(CFG.MARCA)$('brand').textContent=CFG.MARCA;
+load();
+render();
+</script>
+</body>
+</html>
