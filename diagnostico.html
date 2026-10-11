@@ -3,86 +3,119 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Diagnóstico de conteúdo</title>
-<meta name="description" content="Descubra qual solução faz mais sentido para o seu conteúdo: edição de vídeos, estratégia de conteúdo ou o Método Estratégico de Conteúdo.">
-<meta name="theme-color" content="#F6F3EF">
+<title>NEXO: diagnóstico de conteúdo</title>
+<meta name="description" content="Descubra qual solução faz mais sentido para o seu conteúdo: edição de vídeos, estratégia de conteúdo ou o Método NEXO.">
+<meta name="theme-color" content="#FAF9F6">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--paper:#F6F3EF;--ink:#33302C;--mut:#6B6560;--blue:#7C929E;--deep:#4F6472;--taupe:#AD9C8A;--brown:#6A4B35;--line:#DAD3CB}
+:root{--bg:#FAF9F6;--ink:#1F2A25;--btn:#25322C;--sage:#566F5E;--mut:#666C67;--soft:#4B524D;--line:#D9D7CF;--err:#9A3F2B}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{min-height:100dvh;background:var(--paper);color:var(--ink);font:300 16px/1.6 Poppins,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-background-image:radial-gradient(520px 520px at 100% 0,rgba(124,146,158,.22),transparent 70%),radial-gradient(460px 460px at 0 100%,rgba(173,156,138,.26),transparent 70%);background-attachment:fixed}
-.wrap{max-width:600px;margin:0 auto;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
-.top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
-.brand{font:500 12px Poppins,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--brown)}
-.back{background:none;border:0;color:var(--mut);font:400 14px Poppins,sans-serif;cursor:pointer;padding:10px 4px;min-height:44px}
-.bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--deep);transition:width .35s}
-main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 0}
+body{background:var(--bg);color:var(--ink);font:300 15px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1180px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px))}
+.hd{padding:10px 0 22px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:14px}
+.mark{width:38px;height:38px;border:1px solid var(--ink);display:grid;place-items:center;font:italic 400 24px 'EB Garamond',Georgia,serif}
+.wm{display:flex;flex-direction:column;line-height:1.1}
+.wm b{font:400 22px 'EB Garamond',Georgia,serif;letter-spacing:.28em}
+.wm small{font:400 8.5px Inter,sans-serif;letter-spacing:.24em;text-transform:uppercase;margin-top:6px;color:var(--mut)}
+.grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr);gap:40px;padding:28px 0;align-items:center}
+.hero{display:none}
+@media(min-width:960px){.grid{grid-template-columns:minmax(0,1fr) minmax(460px,540px);gap:80px;padding:56px 0}.hero{display:block}}
+.kick,.kicker,.micro,.lab,label{font:400 11px Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+.kicker{margin:0 0 12px}
+.big{font:400 clamp(46px,5.6vw,70px)/1.03 'EB Garamond',Georgia,serif;margin:18px 0 22px;letter-spacing:-.01em}
+em{font-style:italic;color:var(--sage)}
+.hero .lead{max-width:430px;color:var(--soft);font-size:16px}
+.svc{display:grid;grid-template-columns:auto 1fr;gap:0 24px;margin-top:30px;padding-top:24px;border-top:1px solid var(--line);max-width:430px;font-size:14px}
+.svc span{font:400 13px 'EB Garamond',serif;color:var(--mut);letter-spacing:.06em}
+.svc ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.hero .micro{margin-top:40px}
+.card{background:#fff;border:1px solid var(--line);padding:24px 20px 20px}
+@media(min-width:600px){.card{padding:34px 36px 26px}}
+.chead{display:flex;justify-content:space-between;align-items:center;min-height:18px}
+.cnt{font:400 13px 'EB Garamond',Georgia,serif;letter-spacing:.08em;color:var(--mut)}
+.line{height:2px;background:var(--line);margin:14px 0 30px}
+.line i{display:block;height:100%;width:0;background:var(--ink);transition:width .35s}
 .scr{animation:in .35s ease both}
-@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.scr{animation:none}.bar i{transition:none}}
-h1,h2{font:600 clamp(32px,9vw,46px)/1.1 'Cormorant Garamond',Georgia,serif;margin:0 0 14px;letter-spacing:-.01em}
-h2{font-size:clamp(27px,7vw,36px)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.scr{animation:none}.line i{transition:none}}
+h1,h2{font:500 clamp(28px,7vw,37px)/1.15 'EB Garamond',Georgia,serif;margin:0 0 14px;letter-spacing:-.005em}
+h1{font-size:clamp(32px,8vw,42px)}
 h1:focus,h2:focus{outline:none}
 p{margin:0 0 14px}
-.lead{color:var(--mut)}
-.kicker{font:500 12px Poppins,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--deep);margin-bottom:8px}
-.opts{display:grid;gap:12px;margin-top:22px}
-.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:14px 18px;text-align:left;font:400 15px/1.4 Poppins,sans-serif;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:18px;cursor:pointer;transition:border-color .2s,background .2s,transform .1s}
-.opt:hover{border-color:var(--blue)}
-.opt:active{transform:scale(.99)}
-.opt[aria-pressed=true]{border-color:var(--deep);background:#EEF2F4}
-.dot{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--taupe);display:grid;place-items:center}
-.opt[aria-pressed=true] .dot{background:var(--deep);border-color:var(--deep)}
+.lead{color:var(--soft)}
+.opts{display:grid;gap:10px;margin-top:22px}
+.opt{display:flex;align-items:flex-start;gap:16px;width:100%;min-height:62px;padding:17px 18px;text-align:left;font:400 15px/1.45 Inter,sans-serif;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:2px;cursor:pointer;transition:border-color .2s}
+.opt:hover{border-color:var(--sage)}
+.opt[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.dot{flex:none;width:18px;height:18px;margin-top:1px;border-radius:50%;border:1px solid var(--mut);display:grid;place-items:center}
+.opt[aria-pressed=true] .dot{background:var(--ink);border-color:var(--ink)}
 .opt[aria-pressed=true] .dot::after{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
-.multi .dot{border-radius:6px}
-.multi .opt[aria-pressed=true] .dot::after{border-radius:2px;width:8px;height:8px}
-.btn{display:block;width:100%;min-height:58px;margin-top:22px;padding:15px 22px;font:500 16px Poppins,sans-serif;text-align:center;text-decoration:none;color:#fff;background:var(--brown);border:0;border-radius:18px;cursor:pointer}
-.btn:disabled{opacity:.45;cursor:default}
-.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-label{display:block;font:500 13px Poppins,sans-serif;color:var(--mut);margin:16px 0 6px}
-input[type=text],input[type=tel],textarea{width:100%;font:400 16px Poppins,sans-serif;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;min-height:52px}
+.multi .dot{border-radius:2px}
+.multi .opt[aria-pressed=true] .dot::after{border-radius:0;width:8px;height:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;min-height:58px;margin-top:26px;padding:0 28px;font:400 14px Inter,sans-serif;letter-spacing:.05em;text-align:center;text-decoration:none;color:#fff;background:var(--btn);border:0;border-radius:2px;cursor:pointer}
+.btn::after{content:"→";font-size:16px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost::after{content:""}
+:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+label{display:block;margin:20px 0 8px}
+input[type=text],input[type=tel],textarea{width:100%;font:400 16px Inter,sans-serif;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:2px;padding:14px 16px;min-height:52px}
 textarea{resize:vertical;min-height:90px}
+input:focus,textarea:focus{border-color:var(--ink);outline:none}
 .seg{display:grid;gap:10px}
 .seg .opt{min-height:54px}
-.chk{display:flex;gap:12px;align-items:flex-start;margin-top:18px;font-size:13px;color:var(--mut);font-weight:400}
-.chk input{flex:none;width:22px;height:22px;margin-top:2px;accent-color:var(--brown)}
-.err{color:#9A3F2B;font-size:13px;margin:6px 0 0}
+.chk{display:flex;gap:12px;align-items:flex-start;margin-top:22px;font:300 13px/1.5 Inter,sans-serif;letter-spacing:0;text-transform:none;color:var(--soft)}
+.chk input{flex:none;width:20px;height:20px;margin-top:2px;accent-color:var(--btn)}
+.err{color:var(--err);font-size:13px;margin:6px 0 0}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.nolist{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px}
-.nolist li{display:flex;gap:12px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:15px}
-.nolist li::before{content:"×";flex:none;width:24px;height:24px;border-radius:50%;background:var(--brown);color:#fff;display:grid;place-items:center;font-size:16px;line-height:1}
-.close{border-left:3px solid var(--taupe);padding-left:16px;color:var(--ink)}
-.tag{display:inline-block;font:500 12px Poppins,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--deep);border-radius:999px;padding:6px 14px;margin-bottom:14px}
-.sum{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:8px;font-size:14px;color:var(--mut)}
+.nolist{list-style:none;padding:0;margin:16px 0 22px;border-top:1px solid var(--line)}
+.nolist li{display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:12px 2px;font-size:15px}
+.nolist li::before{content:"×";flex:none;width:22px;height:22px;border:1px solid var(--ink);display:grid;place-items:center;font-size:14px;line-height:1}
+.close{border-left:2px solid var(--sage);padding-left:16px;color:var(--ink)}
+.sum{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:8px;font-size:14px;color:var(--soft);border-top:1px solid var(--line);padding-top:18px}
 .sum b{color:var(--ink);font-weight:500}
-.note{font-size:13px;color:var(--mut);text-align:center;margin-top:14px}
+.note{font-size:13px;color:var(--mut);margin-top:14px}
+.cfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--line);margin-top:30px;padding-top:16px}
+.back{background:none;border:0;padding:8px 0;min-height:40px;font:400 13px Inter,sans-serif;color:var(--soft);cursor:pointer}
+.back[hidden]{display:none}
+.cfoot .micro{margin-left:auto;text-align:right;letter-spacing:.1em;font-size:10.5px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top"><span class="brand" id="brand">Diagnóstico de conteúdo</span><button class="back" id="back" hidden>Voltar</button></div>
-  <div class="bar" role="progressbar" aria-label="Progresso do diagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pb"><i id="pf"></i></div>
-  <main id="app" aria-live="polite"></main>
+<div class="page">
+  <header class="hd"><div class="logo"><span class="mark" aria-hidden="true">N</span><span class="wm"><b>NEXO</b><small>Estratégia &amp; Conteúdo</small></span></div></header>
+  <div class="grid">
+    <aside class="hero">
+      <p class="kick">Um bom conteúdo começa com direção</p>
+      <p class="big">Qual é o próximo passo do seu <em>conteúdo?</em></p>
+      <p class="lead">Conte o que você precisa. Ao final, você encontra o serviço indicado e prepara seu pedido de orçamento.</p>
+      <div class="svc"><span>01—04</span><ul><li>Método NEXO</li><li>Estratégia de conteúdo</li><li>Edição de vídeos</li><li>Estratégia + Edição de vídeos</li></ul></div>
+      <p class="micro">Clareza antes da proposta</p>
+    </aside>
+    <section class="card" aria-label="Diagnóstico">
+      <div class="chead"><span class="lab" id="lab">Diagnóstico</span><span class="cnt" id="cnt"></span></div>
+      <div class="line" role="progressbar" aria-label="Progresso do diagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pb"><i id="pf"></i></div>
+      <main id="app" aria-live="polite"></main>
+      <div class="cfoot"><button class="back" id="back" hidden>← Voltar</button><span class="micro">Só o que importa para o orçamento</span></div>
+    </section>
+  </div>
 </div>
 <noscript><p style="padding:24px">Ative o JavaScript para fazer o diagnóstico.</p></noscript>
 <script>
 /* ===== CONFIGURAÇÃO ===== */
 const CFG={
-  WHATSAPP:'5527999853506',   // seu número com país e DDD, só números. Ex.: 5527999999999
-  MARCA:'NEXO - ESTRATÉGIA E EDIÇÃO',      // nome que aparece no topo (opcional)
+  WHATSAPP:'',   // seu número com país e DDD, só números. Ex.: 5527999999999
   SUPABASE_URL:'https://wqzedkpxriudwpwvkvvh.supabase.co',
   SUPABASE_KEY:'sb_publishable_zlfg3DrS8KkSzvvWzuOsdA_dy_rfaOl'
 };
 
 /* ===== CONTEÚDO DO QUIZ ===== */
-const SV={edicao:'Edição de vídeos',estrategia:'Estratégia de conteúdo',metodo:'Método Estratégico de Conteúdo',ee:'Estratégia + Edição de vídeos'};
+const SV={edicao:'Edição de vídeos',estrategia:'Estratégia de conteúdo',metodo:'Método NEXO',ee:'Estratégia + Edição de vídeos'};
 const TX={
   edicao:'Você já tem direção sobre o que produzir e precisa principalmente transformar suas gravações em conteúdos profissionais, dinâmicos e preparados para as redes sociais.',
   estrategia:'Você precisa organizar melhor sua comunicação, definir o que produzir e criar uma linha de conteúdo consistente para não depender de ideias aleatórias todos os dias.',
@@ -106,12 +139,12 @@ const Q={
   {v:'conhecimento',t:'Tenho conhecimento, mas não sei transformar isso em conteúdo.',m:1,e:1},
   {v:'aleatorio',t:'Até posto, mas meu conteúdo parece aleatório.',e:2},
   {v:'ideias',t:'Tenho dificuldade para criar ideias e pautas.',e:2},
-  {v:'headlines',t:'Preciso melhorar minhas headlines, roteiros e comunicação.',e:2},
+  {v:'headlines',t:'Preciso melhorar minhas headlines e minha comunicação.',e:2},
   {v:'estruturada',t:'Quero construir uma estratégia realmente estruturada para crescer e me posicionar.',m:3}]},
  es2:{t:'O que você espera receber dessa estratégia?',o:[
   {v:'plano',t:'Um planejamento para saber o que produzir.',e:2},
   {v:'ideias',t:'Ideias, temas e direcionamento editorial.',e:2},
-  {v:'roteiros',t:'Roteiros e estrutura para meus conteúdos.',e:2},
+  {v:'estrutura',t:'Estrutura para meus conteúdos.',e:2},
   {v:'posicionamento',t:'Posicionamento, público, pilares, narrativa, headlines e estratégia completa.',m:3},
   {v:'integrado',t:'Quero tudo isso sendo pensado de forma integrada.',m:3}]},
  es3:{t:'Você procura apenas um planejamento de conteúdo ou quer construir uma lógica estratégica por trás do que publica?',o:[
@@ -120,7 +153,7 @@ const Q={
   {v:'converter',t:'Quero criar conteúdo pensado para atrair, prender atenção, gerar autoridade e converter.',m:4},
   {v:'nsei',t:'Ainda não sei.'}]},
  ee1:{t:'O que você quer deixar sob minha responsabilidade?',hint:'Você pode marcar mais de uma opção.',multi:1,o:[
-  'Planejamento de conteúdo','Ideias e pautas','Headlines','Estrutura dos vídeos','Roteiros','Estratégia de posicionamento','Edição dos vídeos','Análise e direcionamento do conteúdo'].map(x=>({v:x,t:x}))},
+  'Planejamento de conteúdo','Ideias e pautas','Headlines','Estrutura dos vídeos','Estratégia de posicionamento','Edição dos vídeos','Análise e direcionamento do conteúdo'].map(x=>({v:x,t:x}))},
  vol2:{t:'Qual é o seu volume aproximado?',o:['Até 8 vídeos por mês','9 a 15','16 a 20','Mais de 20','Ainda preciso definir'].map(x=>({v:x,t:x}))},
  ns1:{t:'Qual é o maior problema do seu conteúdo hoje?',o:[
   {v:'so_editar',t:'Sei o que quero falar, só preciso de alguém para editar.'},
@@ -218,13 +251,13 @@ function question(id){
 }
 function intro(){
   const has=Object.keys(A).length>0;
-  return `<div class="scr"><h1 tabindex="-1">Descubra qual solução faz mais sentido para o seu conteúdo.</h1>
+  return `<div class="scr"><h1 tabindex="-1">Descubra qual solução faz mais sentido para o seu <em>conteúdo.</em></h1>
   <p class="lead">Responda algumas perguntas rápidas. No final, vou indicar o serviço mais adequado para o momento da sua marca ou perfil.</p>
   <button class="btn" id="go">Começar diagnóstico</button>${has?'<button class="btn ghost" id="resume" style="margin-top:12px">Continuar de onde parei</button>':''}</div>`;
 }
 function scope(){
   return `<div class="scr"><h2 tabindex="-1">Como funciona meu trabalho</h2>
-  <p>Meu trabalho é focado na estratégia e na construção do conteúdo: posicionamento, planejamento, ideias, headlines, roteiros, estrutura e edição de vídeos, de acordo com o serviço contratado.</p>
+  <p>Meu trabalho é focado na estratégia e na construção do conteúdo: posicionamento, planejamento, ideias, headlines, estrutura e edição de vídeos, de acordo com o serviço contratado.</p>
   <p>Isso significa que meu trabalho não é uma gestão tradicional de redes sociais.</p>
   <p class="kicker" style="margin-top:22px">Meu trabalho NÃO inclui:</p>
   <ul class="nolist">${NAO.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
@@ -251,8 +284,9 @@ function result(){
   if(need)lines.push(`<li><b>Seu momento:</b> ${esc(need)}</li>`);
   if(volText())lines.push(`<li><b>Volume de vídeos:</b> ${esc(volText())}</li>`);
   lines.push(`<li><b>Para começar:</b> ${esc(I.inicio)}</li>`);
+  const nm=r==='metodo'?'Método <em>NEXO</em>':esc(SV[r]);
   return `<div class="scr"><p class="kicker">${nome?esc(nome)+', seu':'Seu'} diagnóstico</p>
-  <span class="tag">Serviço indicado</span><h1 tabindex="-1">${esc(SV[r])}</h1><p>${esc(TX[r])}</p>
+  <p class="kicker" style="color:var(--sage)">${r==='metodo'?'Método próprio':'Serviço indicado'}</p><h1 tabindex="-1">${nm}</h1><p>${esc(TX[r])}</p>
   <ul class="sum">${lines.join('')}</ul>
   <a class="btn" id="wa" href="${esc(CFG.WHATSAPP?waUrl():'#')}" target="_blank" rel="noopener">Quero solicitar meu orçamento</a>
   <p class="note">Ao clicar, você abre meu WhatsApp com as informações do seu diagnóstico já preenchidas.</p>
@@ -263,7 +297,10 @@ function result(){
 function render(){
   const s=seq();step=Math.max(0,Math.min(step,s.length-1));const id=s[step];
   $('app').innerHTML=id==='intro'?intro():id==='scope'?scope():id==='form'?form():id==='result'?result():question(id);
-  const pct=Math.round(step/(s.length-1)*100);$('pf').style.width=pct+'%';$('pb').setAttribute('aria-valuenow',pct);
+  const labs={intro:'Diagnóstico',scope:'Como funciona',form:'Seus dados',result:'Seu diagnóstico'},tot=s.length-2;
+  $('lab').textContent=labs[id]||'Seu momento';
+  $('cnt').textContent=(id==='intro'||id==='result')?'':String(step).padStart(2,'0')+' / '+String(tot).padStart(2,'0');
+  const pct=id==='intro'?0:id==='result'?100:Math.round(step/tot*100);$('pf').style.width=pct+'%';$('pb').setAttribute('aria-valuenow',pct);
   $('back').hidden=step===0||id==='result';
   const h=$('app').querySelector('h1,h2');if(h)h.focus({preventScroll:true});
   window.scrollTo(0,0);
@@ -300,7 +337,6 @@ $('app').addEventListener('click',e=>{
 $('app').addEventListener('input',e=>{const f=e.target.dataset.f;if(f){I[f]=e.target.value;save()}});
 $('app').addEventListener('change',e=>{if(e.target.dataset.c){I.ok=e.target.checked;save()}});
 $('back').addEventListener('click',()=>go(-1));
-if(CFG.MARCA)$('brand').textContent=CFG.MARCA;
 load();
 render();
 </script>
